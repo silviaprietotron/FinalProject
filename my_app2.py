@@ -46,18 +46,15 @@ if st.button("Descargar y graficar datos"):
     ax.set_ylabel('Precio de cierre', fontsize=12)
     ax.set_title(f'Movimiento del par {selected_pair}', fontsize=16)
 
-    # Formato del eje Y para mayor claridad
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:.2f}'))  # Dos decimales
-    ax.set_ylim(df['close'].min() - 100, df['close'].max() + 100)  # Espacio adicional
+    # Definir un rango para el eje Y
+    min_price = df['close'].min()
+    max_price = df['close'].max()
+    ax.set_ylim(min_price - (0.1 * (max_price - min_price)), max_price + (0.1 * (max_price - min_price)))  # Rango ajustado
 
     # Formato de fechas en el eje x
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))  # Mostrar cada 5 días
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
-
-    # Ajustar el tamaño de la fuente en el eje Y
-    for label in ax.get_yticklabels():
-        label.set_fontsize(10)
 
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
@@ -65,3 +62,4 @@ if st.button("Descargar y graficar datos"):
 
     # Mostrar el gráfico en Streamlit
     st.pyplot(fig)
+
