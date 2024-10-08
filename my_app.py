@@ -46,7 +46,8 @@ if st.button("Descargar y graficar datos"):
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
 
     #Ajustar valores en el eje y
-    ax.set_yticks(0.5)
+    y_ticks = np.arange(df['close'].min(), df['close'].max() + 0.5, 0.5)  # Crear ticks cada 0.5 unidades
+    ax.set_yticks(y_ticks)
       
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
