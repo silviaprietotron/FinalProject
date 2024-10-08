@@ -28,18 +28,12 @@ if st.button("Descargar y graficar datos"):
     df = pd.DataFrame(ohlc_data, columns=columns)
     df['time'] = pd.to_datetime(df['time'], unit='s')
 
-    # Añadir una media móvil (por ejemplo, de 20 periodos)
-    df['SMA_20'] = df['close'].rolling(window=20).mean()
-
     # Crear el gráfico 
     st.write(f"Graficando el par {selected_pair}")
     fig, ax = plt.subplots(figsize=(10, 6))  # Ajusta el tamaño del gráfico
 
     # Graficar la serie de tiempo de 'close'
     ax.plot(df['time'], df['close'], label=f'Precio de cierre de {selected_pair}', color='blue', linewidth=2)
-
-    # Graficar la media móvil
-    ax.plot(df['time'], df['SMA_20'], label='Media móvil 20 periodos', color='orange', linestyle='--', linewidth=2)
 
     # Ajustes visuales
     ax.set_xlabel('Fecha', fontsize=12)
