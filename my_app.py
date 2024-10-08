@@ -49,8 +49,12 @@ if st.button("Descargar y graficar datos"):
     y_min = df['close'].min()
     y_max = df['close'].max()
 
+    # Redondear los valores mínimos y máximos a múltiplos de 0.5
+    y_min_rounded = round(y_min * 2) / 2
+    y_max_rounded = round(y_max * 2) / 2
+
     # Crear un rango de valores de ticks en el eje Y (con incrementos de 0.5)
-    yticks = [round(x * 0.5, 2) for x in range(int(y_min * 2), int(y_max * 2) + 1)]
+    yticks = [round(y_min_rounded + i * 0.5, 2) for i in range(int((y_max_rounded - y_min_rounded) / 0.5) + 1)]
     ax.set_yticks(yticks)
       
     # Añadir rejilla, leyenda y estilo
