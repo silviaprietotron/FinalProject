@@ -20,7 +20,7 @@ selected_pair = st.selectbox("Selecciona el par de criptomonedas:", all_pairs)
 # Botón para descargar y graficar datos
 if st.button("Descargar y graficar datos"):
     # Descargar datos del par seleccionado
-    resp = api.query_public('OHLC', {'pair': selected_pair, 'interval': 60})
+    resp = api.query_public('OHLC', {'pair': selected_pair, 'interval': 60}) #solicita datos de tipo OHLC a la API de Kraken, cada 60 minutos.
     ohlc_data = resp['result'][selected_pair]
 
     # Convertir a DataFrame
@@ -30,7 +30,7 @@ if st.button("Descargar y graficar datos"):
 
     # Crear el gráfico 
     st.write(f"Graficando el par {selected_pair}")
-    fig, ax = plt.subplots(figsize=(10, 6))  # Ajusta el tamaño del gráfico
+    fig, ax = plt.subplots(figsize=(10, 10))  # Ajusta el tamaño del gráfico
 
     # Graficar la serie de tiempo de 'close'
     ax.plot(df['time'], df['close'], label=f'Precio de cierre de {selected_pair}', color='blue', linewidth=2)
