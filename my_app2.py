@@ -21,10 +21,11 @@ selected_pair = st.selectbox("Selecciona el par de criptomonedas:", all_pairs)
 if st.button("Descargar y graficar datos"):
     # Descargar datos del par seleccionado
     resp = api.query_public('OHLC', {'pair': selected_pair, 'interval': 60})
-    ohlc_data = resp['result'][selected_pair]
-
+    
     # Verificar que los datos se han descargado correctamente
-    if ohlc_data:
+    if resp['result']:
+        ohlc_data = resp['result'][selected_pair]
+
         # Convertir a DataFrame
         columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
         df = pd.DataFrame(ohlc_data, columns=columns)
@@ -59,6 +60,10 @@ if st.button("Descargar y graficar datos"):
         ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))  # Mostrar cada 5 días
         fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
 
+        # Ajustar ticks en el eje Y para mayor claridad
+        ax.yaxis.set_major_locator(plt.MaxNLocator(integer=True, prune='both'))  # Limitar a ticks enteros
+        ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.0f}'))  # Formato de miles
+
         # Añadir rejilla, leyenda y estilo
         ax.grid(True, which='both', linestyle='--', linewidth=0.5)
         ax.legend(fontsize=12)
@@ -67,5 +72,6 @@ if st.button("Descargar y graficar datos"):
         st.pyplot(fig)
     else:
         st.error("No se han podido descargar los datos. Por favor, verifica el par de criptomonedas.")
+
 
 
