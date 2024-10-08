@@ -46,7 +46,7 @@ if st.button("Descargar y graficar datos"):
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
 
     #Ajustar valores en el eje y
-    fig.update_yaxes(dtick=0.5)
+    ax.set_yticks(dticks=0.5)
       
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
