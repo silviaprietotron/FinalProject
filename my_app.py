@@ -50,12 +50,6 @@ if st.button("Descargar y graficar datos"):
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
     ax.legend(fontsize=12)
 
-    #Ajustar los valores mostrados del eje y
-    min_y=df['close'].min()
-    max_y=df['close'].max()
-
-    y_ticks=[i * 0.5 for i in range(int(min_y*2), int(max_y*2)+1)]
-    ax.set_yticks(y_ticks)
 
     # Mostrar el gráfico en Streamlit
     st.pyplot(fig)
