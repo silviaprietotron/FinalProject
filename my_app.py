@@ -3,6 +3,7 @@ import krakenex
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import numpy as np
 
 # Configurar la API de Kraken
 api = krakenex.API()
