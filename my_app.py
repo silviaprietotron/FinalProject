@@ -48,8 +48,10 @@ if st.button("Descargar y graficar datos"):
     #Ajustar valores en el eje y
     y_min = df['close'].min()
     y_max = df['close'].max()
-    yticks = np.arange(y_min, y_max + 0.5, 0.5)
-    plt.yticks(yticks)
+
+    # Crear un rango de valores de ticks en el eje Y (con incrementos de 0.5)
+    yticks = [round(x * 0.5, 2) for x in range(int(y_min * 2), int(y_max * 2) + 1)]
+    ax.set_yticks(yticks)
       
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
