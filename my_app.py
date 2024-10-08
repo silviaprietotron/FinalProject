@@ -46,11 +46,6 @@ if st.button("Descargar y graficar datos"):
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))  # Mostrar cada 5 días
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
 
-    #Ajustar valores en el eje y
-    min_y = int(df['close'].min())  # Valor mínimo de 'close'
-    max_y = int(df['close'].max())  # Valor máximo de 'close'
-    y_ticks = [i * 0.5 for i in range(int(min_y * 2), int(max_y * 2) + 1)]  # Crear ticks cada 0.5 unidades
-
       
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
