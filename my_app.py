@@ -30,7 +30,7 @@ if st.button("Descargar y graficar datos"):
 
     # Crear el gráfico 
     st.write(f"Graficando el par {selected_pair}")
-    fig, ax = plt.subplots(figsize=(10, 20))  # Ajusta el tamaño del gráfico
+    fig, ax = plt.subplots(figsize=(10, 10))  # Ajusta el tamaño del gráfico
 
     # Graficar la serie de tiempo de 'close'
     ax.plot(df['time'], df['close'], label=f'Precio de cierre de {selected_pair}', color='blue', linewidth=2)
@@ -45,6 +45,12 @@ if st.button("Descargar y graficar datos"):
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))  # Mostrar cada 5 días
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
 
+    #Ajustar valores en el eje y
+    y_min = df['close'].min()
+    y_max = df['close'].max()
+    yticks = np.arange(y_min, y_max + 0.5, 0.5)
+    plt.yticks(yticks)
+      
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
     ax.legend(fontsize=12)
