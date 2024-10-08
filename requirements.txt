@@ -2,3 +2,4 @@ streamlit
 krakenex
 pandas
 matplotlib
+numpy
