@@ -33,7 +33,7 @@ if st.button("Descargar y graficar datos"):
 
     # Crear el gráfico sofisticado
     st.write(f"Graficando el par {selected_pair}")
-    fig, ax = plt.subplots(figsize=(10, 6))  # Ajusta el tamaño del gráfico
+    fig, ax = plt.subplots(figsize=(12, 6))  # Ajusta el tamaño del gráfico
 
     # Graficar la serie de tiempo de 'close'
     ax.plot(df['time'], df['close'], label=f'Precio de cierre de {selected_pair}', color='blue', linewidth=2)
@@ -46,6 +46,9 @@ if st.button("Descargar y graficar datos"):
     ax.set_ylabel('Precio de cierre', fontsize=12)
     ax.set_title(f'Movimiento del par {selected_pair}', fontsize=16)
 
+    # Ajustar límites del eje Y para mejorar la legibilidad
+    ax.set_ylim([df['close'].min() - 100, df['close'].max() + 100])  # Espacio adicional
+
     # Formato de fechas en el eje x
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))  # Mostrar cada 5 días
@@ -57,3 +60,4 @@ if st.button("Descargar y graficar datos"):
 
     # Mostrar el gráfico en Streamlit
     st.pyplot(fig)
+
