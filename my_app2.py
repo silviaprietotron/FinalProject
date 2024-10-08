@@ -28,28 +28,16 @@ if st.button("Descargar y graficar datos"):
     df = pd.DataFrame(ohlc_data, columns=columns)
     df['time'] = pd.to_datetime(df['time'], unit='s')
 
-    # Asegúrate de que los precios de cierre son numéricos
-    df['close'] = pd.to_numeric(df['close'])
-
-    # Añadir una media móvil (por ejemplo, de 20 periodos)
-    df['SMA_20'] = df['close'].rolling(window=20).mean()
-
-    # Imprimir información útil para depuración
-    st.write("Datos del DataFrame:")
-    st.dataframe(df)  # Muestra el DataFrame en Streamlit
-    st.write(f"Total de registros: {len(df)}")
-    st.write("Valores de 'close' y 'SMA_20':")
-    st.write(df[['close', 'SMA_20']].tail(10))  # Muestra los últimos 10 registros
-
     # Crear el gráfico 
     st.write(f"Graficando el par {selected_pair}")
     fig, ax = plt.subplots(figsize=(10, 6))  # Ajusta el tamaño del gráfico
 
-    # Graficar la serie de tiempo de 'close'
+    # Graficar solo algunos valores de 'close'
     ax.plot(df['time'], df['close'], label=f'Precio de cierre de {selected_pair}', color='blue', linewidth=2)
-
-    # Graficar la media móvil
-    ax.plot(df['time'], df['SMA_20'], label='Media móvil 20 periodos', color='orange', linestyle='--', linewidth=2)
+    
+    # Mostrar solo algunos puntos del precio de cierre (por ejemplo, cada 10 puntos)
+    ax.set_xticks(df['time'][::10])  # Mostrar cada 10 fechas en el eje x
+    ax.set_xticklabels(df['time'][::10].dt.strftime('%Y-%m-%d'), rotation=45)  # Formatear etiquetas del eje x
 
     # Ajustes visuales
     ax.set_xlabel('Fecha', fontsize=12)
@@ -67,8 +55,3 @@ if st.button("Descargar y graficar datos"):
 
     # Mostrar el gráfico en Streamlit
     st.pyplot(fig)
-
-
-
-
-
