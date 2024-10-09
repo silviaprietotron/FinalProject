@@ -20,7 +20,7 @@ resp_pairs = api.query_public('AssetPairs')
 all_pairs = list(resp_pairs['result'].keys())
 
 # Input de usuario: selección de par de monedas
-selected_pair = st.selectbox("Selecciona el par de criptomonedas:", all_pairs)
+selected_pair = st.selectbox("Selecciona el par de monedas:", all_pairs)
 
 # Botón para descargar y graficar datos
 if st.button("Descargar y graficar datos"):
