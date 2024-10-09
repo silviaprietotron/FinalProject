@@ -51,9 +51,7 @@ if st.button("Descargar y graficar datos"):
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
  
     # Ajustar el eje y para mostrar precios cada 5 datos
-    y_ticks = df['close'][::5].tolist()  # Obtener precios cada 5 entradas
-    ax.set_yticks(y_ticks)  # Establecer las posiciones de los ticks
-    ax.set_yticklabels(y_ticks)  # Establecer las etiquetas de los ticks
+    ax.set_yticks(ax.get_yticks()[::5]) 
  
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
