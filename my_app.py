@@ -47,7 +47,7 @@ if st.button("Descargar y graficar datos"):
 
     # Formato de fechas en el eje x
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    ax.xaxis.set_major_locator(mdates.DayLocator(interval=10))  # Mostrar cada 5 días
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=1))  # Mostrar cada 5 días
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
  
     # Añadir rejilla, leyenda y estilo
