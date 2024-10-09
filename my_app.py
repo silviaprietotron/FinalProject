@@ -10,8 +10,9 @@ import numpy as np
 # Configurar la API de Kraken
 api = krakenex.API()
 
-# Título de la aplicación
+# Título de la aplicación y logo
 st.title("Visualización del Par de Monedas en Kraken")
+st.image("logo_app.png", use_column_width=True)
 
 # Obtener todos los pares de criptomonedas
 resp_pairs = api.query_public('AssetPairs')
