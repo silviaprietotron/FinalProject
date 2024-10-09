@@ -25,7 +25,7 @@ selected_pair = st.selectbox("Selecciona el par de monedas:", all_pairs)
 # Botón para descargar y graficar datos
 if st.button("Descargar y graficar datos"):
     # Descargar datos del par seleccionado
-    resp = api.query_public('OHLC', {'pair': selected_pair, 'interval': 120}) #solicita datos de tipo OHLC a la API de Kraken, cada 60 minutos.
+    resp = api.query_public('OHLC', {'pair': selected_pair, 'interval': 60}) #solicita datos de tipo OHLC a la API de Kraken, cada 60 minutos.
     ohlc_data = resp['result'][selected_pair]
 
     # Convertir a DataFrame
