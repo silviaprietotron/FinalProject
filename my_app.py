@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
 
+#Primera Parte: Lectura y Representación del movimiento del Par de Monedas.
+
 # Configurar la API de Kraken
 api = krakenex.API()
 
