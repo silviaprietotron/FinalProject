@@ -3,7 +3,7 @@ import krakenex
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-import numpy as np
+from PIL import Image
 
 #Primera Parte: Lectura y Representación del movimiento del Par de Monedas.
 
@@ -12,7 +12,8 @@ api = krakenex.API()
 
 # Título de la aplicación y logo
 st.title("Visualización del Par de Monedas en Kraken")
-st.image("logo_app.png", use_column_width=True)
+image= Image.open('logo_app.png')
+st.image(image)
 
 # Obtener todos los pares de criptomonedas
 resp_pairs = api.query_public('AssetPairs')
