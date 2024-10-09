@@ -49,9 +49,11 @@ if st.button("Descargar y graficar datos"):
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))  # Mostrar cada 5 días
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
-
-    y_ticks = df['close'][::5]  # Muestra precios cada 5 datos
-    ax.set_yticks(y_ticks)  # Establecer las etiquetas del eje y
+ 
+    # Ajustar el eje y para mostrar precios cada 5 datos
+    y_ticks = df['close'][::5].tolist()  # Obtener precios cada 5 entradas
+    ax.set_yticks(y_ticks)  # Establecer las posiciones de los ticks
+    ax.set_yticklabels(y_ticks)  # Establecer las etiquetas de los ticks
  
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
