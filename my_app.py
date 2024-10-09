@@ -50,12 +50,6 @@ if st.button("Descargar y graficar datos"):
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))  # Mostrar cada 5 días
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
 
-    # Opción alternativa con MultipleLocator para establecer intervalos personalizados
-    #ax.yaxis.set_major_locator(MultipleLocator(base=100))  # Ajusta el valor base (100) según el rango de tus datos
-    #ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
-    # Formateador de precios de cierre con dos decimales
-    #ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.2f}'))  # Mantén dos decimales en el formato
-
  
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
