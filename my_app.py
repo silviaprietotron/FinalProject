@@ -47,8 +47,11 @@ if st.button("Descargar y graficar datos"):
 
     # Formato de fechas en el eje x
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    ax.xaxis.set_major_locator(mdates.DayLocator(interval=1))  # Mostrar cada 5 días
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))  # Mostrar cada 5 días
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
+
+    ax.yaxis.set_major_locator(MaxNLocator(prune='both', nbins=10))  # Limita el número de ticks y ajusta
+    ax.yaxis.set_major_formatter(ScalarFormatter())  # Formateador para mantener los precios en formato numérico legible
  
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
