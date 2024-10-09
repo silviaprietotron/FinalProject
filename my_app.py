@@ -11,9 +11,9 @@ from PIL import Image
 api = krakenex.API()
 
 # Título de la aplicación y logo
-st.title("Visualización del Par de Monedas en Kraken")
 image= Image.open('logo_app.png')
 st.image(image, width=200)
+st.title("Visualización del Par de Monedas en Kraken")
 
 # Obtener todos los pares de criptomonedas
 resp_pairs = api.query_public('AssetPairs')
