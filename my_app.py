@@ -52,7 +52,7 @@ if st.button("Descargar y graficar datos"):
 
     # Opción alternativa con MultipleLocator para establecer intervalos personalizados
     ax.yaxis.set_major_locator(MultipleLocator(base=100))  # Ajusta el valor base (100) según el rango de tus datos
-
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=5))
     # Formateador de precios de cierre con dos decimales
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x:,.2f}'))  # Mantén dos decimales en el formato
 
