@@ -49,7 +49,11 @@ if st.button("Descargar y graficar datos"):
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))  # Mostrar cada 5 días
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
- 
+
+    y_min = df['close'].min()  # Valor mínimo del precio de cierre
+    y_max = df['close'].max()  # Valor máximo del precio de cierre
+    ax.set_ylim([y_min * 0.98, y_max * 1.02])  # Establecer límites del eje y con un pequeño margen
+    
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
     ax.legend(fontsize=12)
