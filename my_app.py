@@ -35,7 +35,7 @@ if st.button("Descargar y graficar datos"):
 
     # Crear el gráfico 
     st.write(f"Graficando el par {selected_pair}")
-    fig, ax = plt.subplots(figsize=(25, 20))  # Ajusta el tamaño del gráfico
+    fig, ax = plt.subplots(figsize=(25, 40))  # Ajusta el tamaño del gráfico
 
     # Graficar la serie de tiempo de 'close'
     ax.plot(df['time'], df['close'], label=f'Precio de cierre de {selected_pair}', color='blue', linewidth=2)
