@@ -50,12 +50,9 @@ if st.button("Descargar y graficar datos"):
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))  # Mostrar cada 5 días
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
 
-    import matplotlib.ticker as ticker
-
-    # Ajustar las etiquetas del eje y
-    ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: f'{x:,.0f}'))  # Para formato más claro
-
-    
+    # Limitar el número de marcas en el eje y
+    ax.yaxis.set_major_locator(ticker.MaxNLocator(10))  # Máximo 10 marcas en el eje y
+ 
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
     ax.legend(fontsize=12)
