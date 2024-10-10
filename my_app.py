@@ -49,14 +49,11 @@ if st.button("Descargar y graficar datos"):
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))  # Mostrar cada 5 días
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
-
-    ax.get_yaxis().set_visible(False) 
     
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
     ax.legend(fontsize=12)
-
-
+    
     # Mostrar el gráfico en Streamlit
     st.pyplot(fig)
 
