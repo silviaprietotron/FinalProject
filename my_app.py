@@ -50,7 +50,11 @@ if st.button("Descargar y graficar datos"):
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))  # Mostrar cada 5 días
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
 
-    ax.set_ylim([df['close'].min(), df['close'].max()])
+    import matplotlib.ticker as ticker
+
+    # Ajustar las etiquetas del eje y
+    ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: f'{x:,.0f}'))  # Para formato más claro
+
     
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
