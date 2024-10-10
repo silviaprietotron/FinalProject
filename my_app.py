@@ -50,8 +50,12 @@ if st.button("Descargar y graficar datos"):
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))  # Mostrar cada 5 días
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
 
-    # Limitar el número de marcas en el eje y
+    # Aplicar escala logarítmica al eje y
+    ax.set_yscale('log')
+
+    # Limitar el número de marcas en el eje y (aplicarlo después de la escala)
     ax.yaxis.set_major_locator(ticker.MaxNLocator(10))  # Máximo 10 marcas en el eje y
+
  
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
