@@ -37,17 +37,20 @@ if st.button("Descargar y graficar datos"):
     st.write(f"Graficando el par {selected_pair}")
     fig, ax = plt.subplots(figsize=(10, 8))  # Ajusta el tamaño del gráfico
 
-    # Graficar el precio de cierre vs fechas
     ax.plot(df['time'], df['close'], label=f'{selected_pair} - Precio de Cierre')
 
     # Formatear eje X: Mostrar fechas cada 5 días
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))  # Mostrar cada 5 días
-    fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
-    
-    # Formatear etiquetas del eje Y para mostrar solo precios correspondientes a esas fechas
+
+    # Seleccionar fechas y precios cada 5 días
     selected_dates = df['time'][::5]  # Fechas cada 5 días
-    selected_prices = df['close'][::5]
+    selected_prices = df['close'][::5]  # Precios correspondientes a esas fechas
+
+    # Ajustar el eje X para que solo se muestren fechas cada 5 días
+    ax.set_xticks(selected_dates)
+
+    # Ajustar el eje Y para mostrar solo los precios correspondientes a esas fechas
     ax.set_yticks(selected_prices)
 
     # Etiquetas y título
@@ -59,5 +62,3 @@ if st.button("Descargar y graficar datos"):
 
     # Mostrar gráfico en Streamlit
     st.pyplot(fig)
-
-
