@@ -41,9 +41,10 @@ if st.button("Descargar y graficar datos"):
     ax.plot(df['time'], df['close'], label=f'{selected_pair} - Precio de Cierre')
 
     # Formatear eje X: Mostrar fechas cada 5 días
-    ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))  # Mostrar cada 5 días
+    fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
+    
     # Formatear etiquetas del eje Y para mostrar solo precios correspondientes a esas fechas
     selected_dates = df['time'][::5]  # Selecciona cada 5 días
     selected_prices = df['close'][::5]
