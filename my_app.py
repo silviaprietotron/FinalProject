@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from PIL import Image
+from matplotlib.ticker import MaxNLocator
 
 #Primera Parte: Lectura y Representación del movimiento del Par de Monedas.
 
@@ -51,9 +52,9 @@ if st.button("Descargar y graficar datos"):
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
 
     #Formato de precios en el eje y
-    selected_prices = df['close'][::5]
-    ax.set_yticks(selected_prices)
-    ax.set_yticklabels([f'{price:.2f}' for price in selected_prices])  # Formato de los precios
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))  # Esto limita el número de ticks en el eje Y a números enteros
+    ax.set_yticks(selected_prices)  # Establece los ticks en el eje Y a los precios seleccionados
+    ax.set_yticklabels([f'{price:.2f}' for price in selected_prices])  # Etiquetas de precios formateadas
 
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
