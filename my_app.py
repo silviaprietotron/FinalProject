@@ -50,6 +50,11 @@ if st.button("Descargar y graficar datos"):
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))  # Mostrar cada 5 días
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
 
+    #Formato de precios en el eje y
+    selected_prices = df['close'][::5]
+    ax.set_yticks(selected_prices)
+    ax.set_yticklabels([f'{price:.2f}' for price in selected_prices])  # Formato de los precios
+
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
     ax.legend(fontsize=12)
