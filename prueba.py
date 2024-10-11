@@ -35,7 +35,7 @@ if st.button("Descargar y graficar datos"):
 
     # Crear el gráfico 
     st.write(f"Graficando el par {selected_pair}")
-    fig, ax = plt.subplots(figsize=(20, 25))  # Ajusta el tamaño del gráfico
+    fig, ax = plt.subplots(figsize=(10, 8))  # Ajusta el tamaño del gráfico
 
     # Graficar el precio de cierre vs fechas
     ax.plot(df['time'], df['close'], label=f'{selected_pair} - Precio de Cierre')
