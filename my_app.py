@@ -52,7 +52,9 @@ if st.button("Descargar y graficar datos"):
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
 
     #Formato de precios en el eje y
-    ax.yaxis.set_major_locator(MaxNLocator(integer=True))  # Esto limita el número de ticks en el eje Y a números enteros
+    selected_prices = df['close'][::5]
+    valid_indices = ~selected_prices.isnull()  # Indices válidos donde no hay NaN
+    selected_prices = selected_prices[valid_indices]
     ax.set_yticks(selected_prices)  # Establece los ticks en el eje Y a los precios seleccionados
     ax.set_yticklabels([f'{price:.2f}' for price in selected_prices])  # Etiquetas de precios formateadas
 
