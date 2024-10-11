@@ -46,7 +46,7 @@ if st.button("Descargar y graficar datos"):
     fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
     
     # Formatear etiquetas del eje Y para mostrar solo precios correspondientes a esas fechas
-
+    selected_dates = df['time'][::5]  # Fechas cada 5 días
     selected_prices = df['close'][::5]
     ax.set_yticks(selected_prices)
 
