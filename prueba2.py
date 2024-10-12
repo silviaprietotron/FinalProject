@@ -53,22 +53,19 @@ all_pairs = list(resp_pairs['result'].keys())
 # Input de usuario: selección de par de monedas
 selected_pair = st.selectbox("Selecciona el par de monedas:", all_pairs)
 
-# Input de usuario: selección de intervalo
-interval = st.selectbox("Selecciona el intervalo de tiempo:", [60, 3600, 21600, 86400], format_func=lambda x: f"{x} segundos")
-
 # Botón para descargar y graficar datos
 if st.button("Descargar y graficar datos"):
-        # Descargar datos del par seleccionado
-        ohlc_data = get_ohlc_data(selected_pair, interval)
+    # Descargar datos del par seleccionado con intervalo fijo de 60 segundos
+    ohlc_data = get_ohlc_data(selected_pair, interval=60)
 
-        # Convertir a DataFrame
-        columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
-        df = pd.DataFrame(ohlc_data, columns=columns)
-        df['time'] = pd.to_datetime(df['time'], unit='s')
+    # Convertir a DataFrame
+    columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
+    df = pd.DataFrame(ohlc_data, columns=columns)
+    df['time'] = pd.to_datetime(df['time'], unit='s')
 
-        # Graficar los datos
-        st.write(f"Graficando el par {selected_pair}")
-        fig = plot_data(df, selected_pair)
+    # Graficar los datos
+    st.write(f"Graficando el par {selected_pair}")
+    fig = plot_data(df, selected_pair)
 
-        # Mostrar el gráfico en Streamlit
-        st.pyplot(fig)
+    # Mostrar el gráfico en Streamlit
+    st.pyplot(fig)
