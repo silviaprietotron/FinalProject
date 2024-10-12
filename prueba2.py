@@ -64,7 +64,6 @@ if st.button("Descargar y graficar datos"):
     df['time'] = pd.to_datetime(df['time'], unit='s')
 
     # Graficar los datos
-    st.write(f"Graficando el par {selected_pair}")
     fig = plot_data(df, selected_pair)
 
     # Mostrar el gráfico en Streamlit
