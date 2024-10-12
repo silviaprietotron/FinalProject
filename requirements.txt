@@ -2,3 +2,5 @@ streamlit
 krakenex
 pandas
 matplotlib
+matplotlib.pyplot
+matplotlib.dates
