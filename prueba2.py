@@ -58,7 +58,6 @@ interval = st.selectbox("Selecciona el intervalo de tiempo:", [60, 3600, 21600, 
 
 # Botón para descargar y graficar datos
 if st.button("Descargar y graficar datos"):
-    try:
         # Descargar datos del par seleccionado
         ohlc_data = get_ohlc_data(selected_pair, interval)
 
@@ -73,6 +72,3 @@ if st.button("Descargar y graficar datos"):
 
         # Mostrar el gráfico en Streamlit
         st.pyplot(fig)
-
-    except Exception as e:
-        st.error(f"Ocurrió un error al descargar los datos: {e}")
