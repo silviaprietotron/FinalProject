@@ -21,7 +21,7 @@ def calculate_bollinger_bands(df, window=20, num_sd=2):
     df['upper_band'] = df['rolling_mean'] + (df['rolling_std'] * num_sd)
     df['lower_band'] = df['rolling_mean'] - (df['rolling_std'] * num_sd)
 
-# Función para graficar datos
+# Función para graficar datos de precios
 def plot_data(df, selected_pair):
     fig, ax = plt.subplots(figsize=(20, 10))
 
@@ -109,3 +109,4 @@ if df is not None and st.button("Mostrar Bandas de Bollinger"):
 
     # Mostrar el gráfico de Bandas de Bollinger
     st.pyplot(fig_bb)
+
