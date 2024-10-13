@@ -69,7 +69,6 @@ if st.button("Descargar y graficar datos"):
     # Mostrar el gráfico en Streamlit
     st.pyplot(fig)
 
-# Función para calcular Bandas de Bollinger
 def calculate_bollinger_bands(df, window=20):
     df['SMA'] = df['close'].rolling(window=window).mean()  # Media móvil simple
     df['STD'] = df['close'].rolling(window=window).std()   # Desviación estándar
@@ -99,7 +98,7 @@ def plot_bollinger(df, selected_pair):
 # Verificar si los datos han sido cargados previamente
 if st.button("Mostrar Bandas de Bollinger"):
     if 'ohlc_data' in st.session_state:
-        df = st.session_state.ohlc_data
+        df = st.session_state.ohlc_data  # Acceder a los datos almacenados en la sesión
 
         # Calcular las Bandas de Bollinger
         df = calculate_bollinger_bands(df)
@@ -111,9 +110,6 @@ if st.button("Mostrar Bandas de Bollinger"):
         st.pyplot(fig_bollinger)
     else:
         st.warning("Primero debes descargar los datos y mostrar el gráfico de precios de cierre.")
-
-
-
 
 
 
