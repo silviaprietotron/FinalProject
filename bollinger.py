@@ -84,8 +84,10 @@ if st.button("Descargar y graficar datos"):
     # Mostrar el gráfico en Streamlit
     st.pyplot(fig)
 
-    # Botón para mostrar Bandas de Bollinger
-    if st.button("Mostrar Bandas de Bollinger"):
-        fig = plot_data(df, selected_pair, show_bollinger=True)
-        st.pyplot(fig)
+# Botón para mostrar Bandas de Bollinger
+if st.button("Mostrar Bandas de Bollinger"):
+    # Graficar de nuevo, pero ahora con las Bandas de Bollinger
+    fig_bollinger = plot_data(df, selected_pair, show_bollinger=True)
+    st.pyplot(fig_bollinger)
+
 
