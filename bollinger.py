@@ -54,7 +54,7 @@ def plot_bollinger_bands(df, selected_pair):
 
     # Graficar el precio de cierre
     ax_bb.plot(df['time'], df['close'], label='Precio de Cierre', color='blue')
-
+    
     # Graficar las Bandas de Bollinger
     ax_bb.plot(df['time'], df['upper_band'], label='Banda Superior', color='red', linestyle='--')
     ax_bb.plot(df['time'], df['lower_band'], label='Banda Inferior', color='green', linestyle='--')
@@ -106,4 +106,3 @@ if st.button("Descargar y graficar datos"):
 
         # Mostrar el gráfico de Bandas de Bollinger
         st.pyplot(fig_bb)
-
