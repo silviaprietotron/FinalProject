@@ -106,5 +106,3 @@ if st.button("Descargar y graficar datos"):
 
         # Mostrar el gráfico de Bandas de Bollinger
         st.pyplot(fig_bb)
-
-
