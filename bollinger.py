@@ -100,9 +100,10 @@ if st.button("Descargar y graficar datos"):
     # Calcular las Bandas de Bollinger
     calculate_bollinger_bands(df)
 
-    # Botón para mostrar Bandas de Bollinger
+    # Mostrar las Bandas de Bollinger al presionar el botón
     if st.button("Mostrar Bandas de Bollinger"):
         fig_bb = plot_bollinger_bands(df, selected_pair)
 
         # Mostrar el gráfico de Bandas de Bollinger
         st.pyplot(fig_bb)
+
