@@ -81,6 +81,9 @@ all_pairs = list(resp_pairs['result'].keys())
 # Input de usuario: selección de par de monedas
 selected_pair = st.selectbox("Selecciona el par de monedas:", all_pairs)
 
+# Inicializar DataFrame fuera del botón para mantener el estado
+df = None
+
 # Botón para descargar y graficar datos
 if st.button("Descargar y graficar datos"):
     # Descargar datos del par seleccionado con intervalo fijo de 60 segundos
@@ -100,12 +103,13 @@ if st.button("Descargar y graficar datos"):
     # Calcular las Bandas de Bollinger
     calculate_bollinger_bands(df)
 
-    # Botón para mostrar Bandas de Bollinger
-    if st.button("Mostrar Bandas de Bollinger"):
-        fig_bb = plot_bollinger_bands(df, selected_pair)
+# Botón para mostrar Bandas de Bollinger (debe estar fuera del bloque anterior para que funcione)
+if df is not None and st.button("Mostrar Bandas de Bollinger"):
+    fig_bb = plot_bollinger_bands(df, selected_pair)
 
-        # Mostrar el gráfico de Bandas de Bollinger
-        st.pyplot(fig_bb)
+    # Mostrar el gráfico de Bandas de Bollinger
+    st.pyplot(fig_bb)
+
 
 
 
