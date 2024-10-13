@@ -19,7 +19,7 @@ def get_ohlc_data(pair, interval=60):
         return None
 
 # Función para calcular Bandas de Bollinger
-def calculate_bollinger_bands(df, window=30, num_sd=2):
+def calculate_bollinger_bands(df, window=20, num_sd=2):
     df['rolling_mean'] = df['close'].rolling(window=window).mean()
     df['rolling_std'] = df['close'].rolling(window=window).std()
     df['upper_band'] = df['rolling_mean'] + (df['rolling_std'] * num_sd)
@@ -58,11 +58,14 @@ def plot_bollinger_bands(df, selected_pair):
 
     # Graficar el precio de cierre
     ax_bb.plot(df['time'], df['close'], label='Precio de Cierre', color='blue')
-    
-    # Graficar las Bandas de Bollinger
-    ax_bb.plot(df['time'], df['upper_band'], label='Banda Superior', color='red', linestyle='--')
-    ax_bb.plot(df['time'], df['lower_band'], label='Banda Inferior', color='green', linestyle='--')
-    ax_bb.plot(df['time'], df['rolling_mean'], label='Media Móvil', color='orange')
+
+    # Verificar si hay datos suficientes para las Bandas de Bollinger
+    if df['rolling_mean'].notna().any():
+        ax_bb.plot(df['time'], df['upper_band'], label='Banda Superior', color='red', linestyle='--')
+        ax_bb.plot(df['time'], df['lower_band'], label='Banda Inferior', color='green', linestyle='--')
+        ax_bb.plot(df['time'], df['rolling_mean'], label='Media Móvil', color='orange')
+    else:
+        st.warning("No hay suficientes datos para calcular las Bandas de Bollinger.")
 
     # Ajustes visuales
     ax_bb.set_xlabel('Fecha', fontsize=12)
@@ -111,5 +114,3 @@ if st.button("Descargar y graficar datos"):
         if st.button("Mostrar Bandas de Bollinger"):
             fig_bb = plot_bollinger_bands(df, selected_pair)
             st.pyplot(fig_bb)
-
-
