@@ -65,6 +65,10 @@ all_pairs = list(resp_pairs['result'].keys())
 # Input de usuario: selección de par de monedas
 selected_pair = st.selectbox("Selecciona el par de monedas:", all_pairs)
 
+# Inicializar el estado para mostrar bandas de Bollinger
+if 'show_bollinger' not in st.session_state:
+    st.session_state.show_bollinger = False
+
 # Botón para descargar y graficar datos
 if st.button("Descargar y graficar datos"):
     # Descargar datos del par seleccionado con intervalo fijo de 60 segundos
@@ -79,15 +83,17 @@ if st.button("Descargar y graficar datos"):
     df = calculate_bollinger_bands(df)
 
     # Graficar los datos
-    fig = plot_data(df, selected_pair)
+    fig = plot_data(df, selected_pair, show_bollinger=st.session_state.show_bollinger)
 
     # Mostrar el gráfico en Streamlit
     st.pyplot(fig)
 
-    # Botón para mostrar Bandas de Bollinger
-    if st.button("Mostrar Bandas de Bollinger"):
-        # Graficar de nuevo, pero ahora con las Bandas de Bollinger
-        fig_bollinger = plot_data(df, selected_pair, show_bollinger=True)
-        st.pyplot(fig_bollinger)
+# Botón para mostrar Bandas de Bollinger
+if st.button("Mostrar Bandas de Bollinger"):
+    st.session_state.show_bollinger = not st.session_state.show_bollinger  # Alternar el estado
+    # Graficar de nuevo, pero ahora con las Bandas de Bollinger
+    fig_bollinger = plot_data(df, selected_pair, show_bollinger=st.session_state.show_bollinger)
+    st.pyplot(fig_bollinger)
+
 
 
