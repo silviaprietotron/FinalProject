@@ -48,6 +48,27 @@ def plot_data(df, selected_pair):
 
     return fig
 
+# Función para graficar Bandas de Bollinger
+def plot_bollinger_bands(df, selected_pair):
+    fig_bb, ax_bb = plt.subplots(figsize=(20, 10))
+    
+    # Graficar el precio de cierre
+    ax_bb.plot(df['time'], df['close'], label='Precio de Cierre', color='blue')
+    
+    # Graficar las Bandas de Bollinger
+    ax_bb.plot(df['time'], df['upper_band'], label='Banda Superior', color='red', linestyle='--')
+    ax_bb.plot(df['time'], df['lower_band'], label='Banda Inferior', color='green', linestyle='--')
+    ax_bb.plot(df['time'], df['rolling_mean'], label='Media Móvil', color='orange')
+
+    # Ajustes visuales
+    ax_bb.set_xlabel('Fecha', fontsize=12)
+    ax_bb.set_ylabel('Precio (EUR)', fontsize=12)
+    ax_bb.set_title(f'Bandas de Bollinger para {selected_pair}', fontsize=16)
+    ax_bb.grid(True)
+    ax_bb.legend()
+
+    return fig_bb
+
 # Título de la aplicación y logo
 image = Image.open('logo_app.png')
 st.image(image, width=200)
@@ -81,25 +102,11 @@ if st.button("Descargar y graficar datos"):
 
     # Botón para mostrar Bandas de Bollinger
     if st.button("Mostrar Bandas de Bollinger"):
-        fig_bb, ax_bb = plt.subplots(figsize=(20, 10))
-        
-        # Graficar el precio de cierre
-        ax_bb.plot(df['time'], df['close'], label='Precio de Cierre', color='blue')
-        
-        # Graficar las Bandas de Bollinger
-        ax_bb.plot(df['time'], df['upper_band'], label='Banda Superior', color='red', linestyle='--')
-        ax_bb.plot(df['time'], df['lower_band'], label='Banda Inferior', color='green', linestyle='--')
-        ax_bb.plot(df['time'], df['rolling_mean'], label='Media Móvil', color='orange')
-
-        # Ajustes visuales
-        ax_bb.set_xlabel('Fecha', fontsize=12)
-        ax_bb.set_ylabel('Precio (EUR)', fontsize=12)
-        ax_bb.set_title(f'Bandas de Bollinger para {selected_pair}', fontsize=16)
-        ax_bb.grid(True)
-        ax_bb.legend()
+        fig_bb = plot_bollinger_bands(df, selected_pair)
 
         # Mostrar el gráfico de Bandas de Bollinger
         st.pyplot(fig_bb)
+
 
 
 
