@@ -11,8 +11,12 @@ api = krakenex.API()
 
 # Función para obtener datos OHLC
 def get_ohlc_data(pair, interval=60):
-    resp = api.query_public('OHLC', {'pair': pair, 'interval': interval})
-    return resp['result'][pair]
+    try:
+        resp = api.query_public('OHLC', {'pair': pair, 'interval': interval})
+        return resp['result'][pair]
+    except Exception as e:
+        st.error(f"Error al obtener datos de Kraken: {e}")
+        return None
 
 # Función para calcular Bandas de Bollinger
 def calculate_bollinger_bands(df, window=20, num_sd=2):
@@ -75,8 +79,12 @@ st.image(image, width=200)
 st.title("Visualización del Par de Monedas en Kraken")
 
 # Obtener todos los pares de criptomonedas
-resp_pairs = api.query_public('AssetPairs')
-all_pairs = list(resp_pairs['result'].keys())
+try:
+    resp_pairs = api.query_public('AssetPairs')
+    all_pairs = list(resp_pairs['result'].keys())
+except Exception as e:
+    st.error(f"Error al obtener los pares de monedas: {e}")
+    all_pairs = []
 
 # Input de usuario: selección de par de monedas
 selected_pair = st.selectbox("Selecciona el par de monedas:", all_pairs)
@@ -86,24 +94,22 @@ if st.button("Descargar y graficar datos"):
     # Descargar datos del par seleccionado con intervalo fijo de 60 segundos
     ohlc_data = get_ohlc_data(selected_pair, interval=60)
 
-    # Convertir a DataFrame
-    columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
-    df = pd.DataFrame(ohlc_data, columns=columns)
-    df['time'] = pd.to_datetime(df['time'], unit='s')
+    if ohlc_data is not None:
+        # Convertir a DataFrame
+        columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
+        df = pd.DataFrame(ohlc_data, columns=columns)
+        df['time'] = pd.to_datetime(df['time'], unit='s')
 
-    # Graficar los datos de precios
-    fig = plot_data(df, selected_pair)
+        # Graficar los datos de precios
+        fig = plot_data(df, selected_pair)
+        st.pyplot(fig)
 
-    # Mostrar el gráfico de precios en Streamlit
-    st.pyplot(fig)
+        # Calcular las Bandas de Bollinger
+        calculate_bollinger_bands(df)
 
-    # Calcular las Bandas de Bollinger
-    calculate_bollinger_bands(df)
+        # Mostrar las Bandas de Bollinger al presionar el botón
+        if st.button("Mostrar Bandas de Bollinger"):
+            fig_bb = plot_bollinger_bands(df, selected_pair)
+            st.pyplot(fig_bb)
 
-    # Mostrar las Bandas de Bollinger al presionar el botón
-    if st.button("Mostrar Bandas de Bollinger"):
-        fig_bb = plot_bollinger_bands(df, selected_pair)
-
-        # Mostrar el gráfico de Bandas de Bollinger
-        st.pyplot(fig_bb)
 
