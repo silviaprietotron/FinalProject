@@ -41,34 +41,6 @@ def plot_data(df, selected_pair):
 
     return fig
 
-# Título de la aplicación y logo
-image = Image.open('logo_app.png')
-st.image(image, width=200)
-st.title("Visualización del Par de Monedas en Kraken")
-
-# Obtener todos los pares de criptomonedas
-resp_pairs = api.query_public('AssetPairs')
-all_pairs = list(resp_pairs['result'].keys())
-
-# Input de usuario: selección de par de monedas
-selected_pair = st.selectbox("Selecciona el par de monedas:", all_pairs)
-
-# Botón para descargar y graficar datos
-if st.button("Descargar y graficar datos"):
-    # Descargar datos del par seleccionado con intervalo fijo de 60 segundos
-    ohlc_data = get_ohlc_data(selected_pair, interval=60)
-
-    # Convertir a DataFrame
-    columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
-    df = pd.DataFrame(ohlc_data, columns=columns)
-    df['time'] = pd.to_datetime(df['time'], unit='s')
-
-    # Graficar los datos
-    fig = plot_data(df, selected_pair)
-
-    # Mostrar el gráfico en Streamlit
-    st.pyplot(fig)
-
 class BandasBollinger:
     def __init__(self, df, ventana=20, num_desv=2):
         self.df = df
@@ -110,6 +82,34 @@ class BandasBollinger:
     ax.legend(fontsize=12)
 
     return fig
+      
+# Título de la aplicación y logo
+image = Image.open('logo_app.png')
+st.image(image, width=200)
+st.title("Visualización del Par de Monedas en Kraken")
+
+# Obtener todos los pares de criptomonedas
+resp_pairs = api.query_public('AssetPairs')
+all_pairs = list(resp_pairs['result'].keys())
+
+# Input de usuario: selección de par de monedas
+selected_pair = st.selectbox("Selecciona el par de monedas:", all_pairs)
+
+# Botón para descargar y graficar datos
+if st.button("Descargar y graficar datos"):
+    # Descargar datos del par seleccionado con intervalo fijo de 60 segundos
+    ohlc_data = get_ohlc_data(selected_pair, interval=60)
+
+    # Convertir a DataFrame
+    columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
+    df = pd.DataFrame(ohlc_data, columns=columns)
+    df['time'] = pd.to_datetime(df['time'], unit='s')
+
+    # Graficar los datos
+    fig = plot_data(df, selected_pair)
+
+    # Mostrar el gráfico en Streamlit
+    st.pyplot(fig)
 
 if st.button("Mostrar Bandas de Bollinger"):
         # Graficar las Bandas de Bollinger
