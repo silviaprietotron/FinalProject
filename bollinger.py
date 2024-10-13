@@ -14,24 +14,12 @@ def get_ohlc_data(pair, interval=60):
     resp = api.query_public('OHLC', {'pair': pair, 'interval': interval})
     return resp['result'][pair]
 
-# Función para calcular las Bandas de Bollinger
-def calculate_bollinger_bands(df, window=20):
-    df['SMA'] = df['close'].rolling(window=window).mean()  # Media móvil simple
-    df['Upper Band'] = df['SMA'] + 2 * df['close'].rolling(window=window).std()  # Banda superior
-    df['Lower Band'] = df['SMA'] - 2 * df['close'].rolling(window=window).std()  # Banda inferior
-    return df
-
 # Función para graficar datos
-def plot_data(df, selected_pair, show_bollinger=False):
+def plot_data(df, selected_pair):
     fig, ax = plt.subplots(figsize=(20, 10))  # Ajusta el tamaño del gráfico
 
     # Graficar la serie de tiempo de 'close'
     ax.plot(df['time'], df['close'], label=f'Precio de cierre de {selected_pair}', color='blue', linewidth=2)
-
-    if show_bollinger:
-        ax.plot(df['time'], df['Upper Band'], label='Banda Superior', color='orange', linestyle='--', linewidth=1.5)
-        ax.plot(df['time'], df['Lower Band'], label='Banda Inferior', color='red', linestyle='--', linewidth=1.5)
-        ax.fill_between(df['time'], df['Upper Band'], df['Lower Band'], color='lightgray', alpha=0.5)
 
     # Ajustes visuales
     ax.set_xlabel('Fecha', fontsize=12)
@@ -53,6 +41,13 @@ def plot_data(df, selected_pair, show_bollinger=False):
 
     return fig
 
+# Función para calcular Bandas de Bollinger
+def bandas_bollinger(df, ventana=20, factor_std=2):
+    df['Media Móvil'] = df['close'].rolling(window=ventana).mean()
+    df['Banda Superior'] = df['Media Móvil'] + factor_std * df['close'].rolling(window=ventana).std()
+    df['Banda Inferior'] = df['Media Móvil'] - factor_std * df['close'].rolling(window=ventana).std()
+    return df
+
 # Título de la aplicación y logo
 image = Image.open('logo_app.png')
 st.image(image, width=200)
@@ -65,10 +60,6 @@ all_pairs = list(resp_pairs['result'].keys())
 # Input de usuario: selección de par de monedas
 selected_pair = st.selectbox("Selecciona el par de monedas:", all_pairs)
 
-# Inicializar el estado para mostrar bandas de Bollinger
-if 'show_bollinger' not in st.session_state:
-    st.session_state.show_bollinger = False
-
 # Botón para descargar y graficar datos
 if st.button("Descargar y graficar datos"):
     # Descargar datos del par seleccionado con intervalo fijo de 60 segundos
@@ -79,21 +70,44 @@ if st.button("Descargar y graficar datos"):
     df = pd.DataFrame(ohlc_data, columns=columns)
     df['time'] = pd.to_datetime(df['time'], unit='s')
 
-    # Calcular Bandas de Bollinger
-    df = calculate_bollinger_bands(df)
-
     # Graficar los datos
-    fig = plot_data(df, selected_pair, show_bollinger=st.session_state.show_bollinger)
+    fig = plot_data(df, selected_pair)
 
     # Mostrar el gráfico en Streamlit
     st.pyplot(fig)
 
-# Botón para mostrar Bandas de Bollinger
-if st.button("Mostrar Bandas de Bollinger"):
-    st.session_state.show_bollinger = not st.session_state.show_bollinger  # Alternar el estado
-    # Graficar de nuevo, pero ahora con las Bandas de Bollinger
-    fig_bollinger = plot_data(df, selected_pair, show_bollinger=st.session_state.show_bollinger)
-    st.pyplot(fig_bollinger)
+    # Botón para mostrar Bandas de Bollinger
+    if st.button("Añadir Bandas de Bollinger"):
+        df = bandas_bollinger(df)
+
+        # Añadir las Bandas de Bollinger al gráfico existente
+        fig, ax = plt.subplots(figsize=(20, 10))
+        ax.plot(df['time'], df['close'], label=f'Precio de cierre de {selected_pair}', color='blue', linewidth=2)
+        ax.plot(df['time'], df['Banda Superior'], label='Banda Superior', color='red', linestyle='--')
+        ax.plot(df['time'], df['Banda Inferior'], label='Banda Inferior', color='green', linestyle='--')
+        ax.fill_between(df['time'], df['Banda Inferior'], df['Banda Superior'], color='gray', alpha=0.2)
+
+        # Ajustes visuales
+        ax.set_xlabel('Fecha', fontsize=12)
+        ax.set_ylabel('Precio de cierre (EUR)', fontsize=12)
+        ax.set_title(f'Movimiento del par {selected_pair} con Bandas de Bollinger', fontsize=16)
+
+        # Formato de fechas en el eje x
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))
+        fig.autofmt_xdate()
+
+        # Formato de precios en el eje y
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'€{x:.2f}'))
+
+        # Añadir rejilla, leyenda y estilo
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax.legend(fontsize=12)
+
+        # Mostrar el gráfico en Streamlit
+        st.pyplot(fig)
+
 
 
 
