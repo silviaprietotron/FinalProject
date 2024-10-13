@@ -14,6 +14,13 @@ def get_ohlc_data(pair, interval=60):
     resp = api.query_public('OHLC', {'pair': pair, 'interval': interval})
     return resp['result'][pair]
 
+# Función para calcular Bandas de Bollinger
+def calculate_bollinger_bands(df, window=20, num_sd=2):
+    df['rolling_mean'] = df['close'].rolling(window=window).mean()
+    df['rolling_std'] = df['close'].rolling(window=window).std()
+    df['upper_band'] = df['rolling_mean'] + (df['rolling_std'] * num_sd)
+    df['lower_band'] = df['rolling_mean'] - (df['rolling_std'] * num_sd)
+
 # Función para graficar datos
 def plot_data(df, selected_pair):
     fig, ax = plt.subplots(figsize=(20, 10))  # Ajusta el tamaño del gráfico
@@ -69,47 +76,31 @@ if st.button("Descargar y graficar datos"):
     # Mostrar el gráfico en Streamlit
     st.pyplot(fig)
 
-def calculate_bollinger_bands(df, window=20):
-    df['SMA'] = df['close'].rolling(window=window).mean()  # Media móvil simple
-    df['STD'] = df['close'].rolling(window=window).std()   # Desviación estándar
-    df['Upper Band'] = df['SMA'] + (df['STD'] * 2)         # Banda superior
-    df['Lower Band'] = df['SMA'] - (df['STD'] * 2)         # Banda inferior
-    return df
+    # Calcular las Bandas de Bollinger
+    calculate_bollinger_bands(df)
 
-# Función para graficar Bandas de Bollinger
-def plot_bollinger(df, selected_pair):
-    fig, ax = plt.subplots(figsize=(20, 10))
+    # Botón para mostrar Bandas de Bollinger
+    if st.button("Mostrar Bandas de Bollinger"):
+        fig_bb, ax_bb = plt.subplots(figsize=(20, 10))
+        
+        # Graficar el precio de cierre
+        ax_bb.plot(df['time'], df['close'], label='Precio de Cierre', color='blue')
+        
+        # Graficar las Bandas de Bollinger
+        ax_bb.plot(df['time'], df['upper_band'], label='Banda Superior', color='red', linestyle='--')
+        ax_bb.plot(df['time'], df['lower_band'], label='Banda Inferior', color='green', linestyle='--')
+        ax_bb.plot(df['time'], df['rolling_mean'], label='Media Móvil', color='orange')
 
-    # Graficar la serie de tiempo de 'close' y Bandas de Bollinger
-    ax.plot(df['time'], df['close'], label=f'Precio de cierre de {selected_pair}', color='blue', linewidth=2)
-    ax.plot(df['time'], df['Upper Band'], label='Banda Superior', color='green', linestyle='--', linewidth=1.5)
-    ax.plot(df['time'], df['Lower Band'], label='Banda Inferior', color='red', linestyle='--', linewidth=1.5)
+        # Ajustes visuales
+        ax_bb.set_xlabel('Fecha', fontsize=12)
+        ax_bb.set_ylabel('Precio (EUR)', fontsize=12)
+        ax_bb.set_title(f'Bandas de Bollinger para {selected_pair}', fontsize=16)
+        ax_bb.grid(True)
+        ax_bb.legend()
 
-    # Ajustes visuales
-    ax.set_xlabel('Fecha', fontsize=12)
-    ax.set_ylabel('Precio de cierre (EUR)', fontsize=12)
-    ax.set_title(f'Bandas de Bollinger del par {selected_pair}', fontsize=16)
+        # Mostrar el gráfico de Bandas de Bollinger
+        st.pyplot(fig_bb)
 
-    ax.grid(True, which='both', linestyle='--', linewidth=0.5)
-    ax.legend(fontsize=12)
-
-    return fig
-
-# Verificar si los datos han sido cargados previamente
-if st.button("Mostrar Bandas de Bollinger"):
-    if 'ohlc_data' in st.session_state:
-        df = st.session_state.ohlc_data  # Acceder a los datos almacenados en la sesión
-
-        # Calcular las Bandas de Bollinger
-        df = calculate_bollinger_bands(df)
-
-        # Graficar Bandas de Bollinger
-        fig_bollinger = plot_bollinger(df, selected_pair)
-
-        # Mostrar el gráfico en Streamlit
-        st.pyplot(fig_bollinger)
-    else:
-        st.warning("Primero debes descargar los datos y mostrar el gráfico de precios de cierre.")
 
 
 
