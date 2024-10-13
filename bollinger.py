@@ -111,7 +111,7 @@ class BandasBollinger:
         ax.grid(True, which='both', linestyle='--', linewidth=0.5)
         ax.legend(fontsize=12)
 
-    return fig
+        return fig
 
 if st.button("Mostrar Bandas de Bollinger"):
         # Graficar las Bandas de Bollinger
