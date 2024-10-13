@@ -19,7 +19,7 @@ def get_ohlc_data(pair, interval=60):
         return None
 
 # Función para calcular Bandas de Bollinger
-def calculate_bollinger_bands(df, window=20, num_sd=2):
+def calculate_bollinger_bands(df, window=30, num_sd=2):
     df['rolling_mean'] = df['close'].rolling(window=window).mean()
     df['rolling_std'] = df['close'].rolling(window=window).std()
     df['upper_band'] = df['rolling_mean'] + (df['rolling_std'] * num_sd)
