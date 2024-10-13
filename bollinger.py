@@ -59,8 +59,8 @@ def plot_bollinger_bands(df, selected_pair):
     # Graficar el precio de cierre
     ax_bb.plot(df['time'], df['close'], label='Precio de Cierre', color='blue')
 
-    # Verificar si hay datos suficientes para las Bandas de Bollinger
-    if df['rolling_mean'].notna().any():
+    # Graficar las Bandas de Bollinger
+    if 'upper_band' in df and 'lower_band' in df:
         ax_bb.plot(df['time'], df['upper_band'], label='Banda Superior', color='red', linestyle='--')
         ax_bb.plot(df['time'], df['lower_band'], label='Banda Inferior', color='green', linestyle='--')
         ax_bb.plot(df['time'], df['rolling_mean'], label='Media Móvil', color='orange')
@@ -112,5 +112,10 @@ if st.button("Descargar y graficar datos"):
 
         # Mostrar las Bandas de Bollinger al presionar el botón
         if st.button("Mostrar Bandas de Bollinger"):
-            fig_bb = plot_bollinger_bands(df, selected_pair)
-            st.pyplot(fig_bb)
+            # Verificar que las Bandas de Bollinger se hayan calculado
+            if df['rolling_mean'].notna().any():
+                fig_bb = plot_bollinger_bands(df, selected_pair)
+                st.pyplot(fig_bb)
+            else:
+                st.warning("No hay suficientes datos para calcular las Bandas de Bollinger.")
+
