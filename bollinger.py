@@ -113,7 +113,14 @@ class BandasBollinger:
 
         return fig
 
+
+    bb = BandasBollinger(df)
+    df_bollinger = bb.calcular_bandas()
+    
 if st.button("Mostrar Bandas de Bollinger"):
+    if 'df_bollinger' in locals():  # Verifica que df_bollinger existe
         # Graficar las Bandas de Bollinger
         fig_bollinger = plot_bollinger(df_bollinger, selected_pair)
         st.pyplot(fig_bollinger)
+    else:
+        st.warning("Primero, descarga y grafica los datos para poder mostrar las Bandas de Bollinger.")
