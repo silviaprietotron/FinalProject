@@ -23,7 +23,7 @@ def calculate_bollinger_bands(df, window=20, num_sd=2):
 
 # Función para graficar datos
 def plot_data(df, selected_pair):
-    fig, ax = plt.subplots(figsize=(20, 10))  # Ajusta el tamaño del gráfico
+    fig, ax = plt.subplots(figsize=(20, 10))
 
     # Graficar la serie de tiempo de 'close'
     ax.plot(df['time'], df['close'], label=f'Precio de cierre de {selected_pair}', color='blue', linewidth=2)
@@ -35,12 +35,12 @@ def plot_data(df, selected_pair):
 
     # Formato de fechas en el eje x
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))  # Mostrar cada 5 días
-    fig.autofmt_xdate()  # Rotar las fechas para mejor visibilidad
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))
+    fig.autofmt_xdate()
 
     # Formato de precios en el eje y
     ax.yaxis.set_major_locator(MaxNLocator(integer=True))
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'€{x:.2f}'))  # Formato de moneda
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f'€{x:.2f}'))
 
     # Añadir rejilla, leyenda y estilo
     ax.grid(True, which='both', linestyle='--', linewidth=0.5)
@@ -51,10 +51,10 @@ def plot_data(df, selected_pair):
 # Función para graficar Bandas de Bollinger
 def plot_bollinger_bands(df, selected_pair):
     fig_bb, ax_bb = plt.subplots(figsize=(20, 10))
-    
+
     # Graficar el precio de cierre
     ax_bb.plot(df['time'], df['close'], label='Precio de Cierre', color='blue')
-    
+
     # Graficar las Bandas de Bollinger
     ax_bb.plot(df['time'], df['upper_band'], label='Banda Superior', color='red', linestyle='--')
     ax_bb.plot(df['time'], df['lower_band'], label='Banda Inferior', color='green', linestyle='--')
@@ -103,15 +103,9 @@ if st.button("Descargar y graficar datos"):
     # Calcular las Bandas de Bollinger
     calculate_bollinger_bands(df)
 
-# Botón para mostrar Bandas de Bollinger (debe estar fuera del bloque anterior para que funcione)
+# Botón para mostrar Bandas de Bollinger
 if df is not None and st.button("Mostrar Bandas de Bollinger"):
     fig_bb = plot_bollinger_bands(df, selected_pair)
 
     # Mostrar el gráfico de Bandas de Bollinger
     st.pyplot(fig_bb)
-
-
-
-
-
-
