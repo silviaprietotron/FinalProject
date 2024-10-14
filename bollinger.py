@@ -66,8 +66,10 @@ def plot_bollinger_bands(bollinger_df, selected_pair):
         ax_bb.plot(bollinger_df['time'], bollinger_df['upper_band'], label='Banda Superior', color='red', linestyle='--')
         ax_bb.plot(bollinger_df['time'], bollinger_df['lower_band'], label='Banda Inferior', color='green', linestyle='--')
         ax_bb.plot(bollinger_df['time'], bollinger_df['rolling_mean'], label='Media Móvil', color='orange')
-    else:
-        st.warning("No hay suficientes datos para calcular las Bandas de Bollinger.")
+
+    # Ajustar los límites del eje Y
+    ax_bb.set_ylim(min(bollinger_df['lower_band'].min(), bollinger_df['close'].min()) * 0.95,
+                   max(bollinger_df['upper_band'].max(), bollinger_df['close'].max()) * 1.05)
 
     # Ajustes visuales
     ax_bb.set_xlabel('Fecha', fontsize=12)
@@ -77,6 +79,7 @@ def plot_bollinger_bands(bollinger_df, selected_pair):
     ax_bb.legend()
 
     return fig_bb
+
 
 # Título de la aplicación y logo
 image = Image.open('logo_app.png')
