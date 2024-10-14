@@ -20,10 +20,12 @@ def get_ohlc_data(pair, interval=60):
 
 # Función para calcular Bandas de Bollinger
 def calculate_bollinger_bands(df, window=20, num_sd=2):
-    df['rolling_mean'] = df['close'].rolling(window=window).mean()
-    df['rolling_std'] = df['close'].rolling(window=window).std()
-    df['upper_band'] = df['rolling_mean'] + (df['rolling_std'] * num_sd)
-    df['lower_band'] = df['rolling_mean'] - (df['rolling_std'] * num_sd)
+    bollinger_df = df.copy()  # Copiar el DataFrame original para Bollinger Bands
+    bollinger_df['rolling_mean'] = bollinger_df['close'].rolling(window=window).mean()
+    bollinger_df['rolling_std'] = bollinger_df['close'].rolling(window=window).std()
+    bollinger_df['upper_band'] = bollinger_df['rolling_mean'] + (bollinger_df['rolling_std'] * num_sd)
+    bollinger_df['lower_band'] = bollinger_df['rolling_mean'] - (bollinger_df['rolling_std'] * num_sd)
+    return bollinger_df
 
 # Función para graficar datos de precios
 def plot_data(df, selected_pair):
@@ -53,17 +55,17 @@ def plot_data(df, selected_pair):
     return fig
 
 # Función para graficar Bandas de Bollinger
-def plot_bollinger_bands(df, selected_pair):
+def plot_bollinger_bands(bollinger_df, selected_pair):
     fig_bb, ax_bb = plt.subplots(figsize=(20, 10))
 
     # Graficar el precio de cierre
-    ax_bb.plot(df['time'], df['close'], label='Precio de Cierre', color='blue')
+    ax_bb.plot(bollinger_df['time'], bollinger_df['close'], label='Precio de Cierre', color='blue')
 
     # Graficar las Bandas de Bollinger
-    if 'upper_band' in df and 'lower_band' in df:
-        ax_bb.plot(df['time'], df['upper_band'], label='Banda Superior', color='red', linestyle='--')
-        ax_bb.plot(df['time'], df['lower_band'], label='Banda Inferior', color='green', linestyle='--')
-        ax_bb.plot(df['time'], df['rolling_mean'], label='Media Móvil', color='orange')
+    if 'upper_band' in bollinger_df and 'lower_band' in bollinger_df:
+        ax_bb.plot(bollinger_df['time'], bollinger_df['upper_band'], label='Banda Superior', color='red', linestyle='--')
+        ax_bb.plot(bollinger_df['time'], bollinger_df['lower_band'], label='Banda Inferior', color='green', linestyle='--')
+        ax_bb.plot(bollinger_df['time'], bollinger_df['rolling_mean'], label='Media Móvil', color='orange')
     else:
         st.warning("No hay suficientes datos para calcular las Bandas de Bollinger.")
 
@@ -100,22 +102,28 @@ if st.button("Descargar y graficar datos"):
     if ohlc_data is not None:
         # Convertir a DataFrame
         columns = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
-        df = pd.DataFrame(ohlc_data, columns=columns)
-        df['time'] = pd.to_datetime(df['time'], unit='s')
+        df_prices = pd.DataFrame(ohlc_data, columns=columns)  # DataFrame para precios normales
+        df_prices['time'] = pd.to_datetime(df_prices['time'], unit='s')
+
+        # Guardar los DataFrames en session_state
+        st.session_state['df_prices'] = df_prices
 
         # Graficar los datos de precios
-        fig = plot_data(df, selected_pair)
+        fig = plot_data(df_prices, selected_pair)
         st.pyplot(fig)
 
         # Calcular las Bandas de Bollinger
-        calculate_bollinger_bands(df)
+        df_bollinger = calculate_bollinger_bands(df_prices)
+        st.session_state['df_bollinger'] = df_bollinger  # Guardar Bollinger en session_state
 
-        # Mostrar las Bandas de Bollinger al presionar el botón
-        if st.button("Mostrar Bandas de Bollinger"):
-            # Verificar que las Bandas de Bollinger se hayan calculado
-            if df['rolling_mean'].notna().any():
-                fig_bb = plot_bollinger_bands(df, selected_pair)
-                st.pyplot(fig_bb)
-            else:
-                st.warning("No hay suficientes datos para calcular las Bandas de Bollinger.")
+# Mostrar las Bandas de Bollinger al presionar el botón
+if 'df_bollinger' in st.session_state:
+    if st.button("Mostrar Bandas de Bollinger"):
+        df_bollinger = st.session_state['df_bollinger']
 
+        # Verificar que las Bandas de Bollinger se hayan calculado
+        if df_bollinger['rolling_mean'].notna().any():
+            fig_bb = plot_bollinger_bands(df_bollinger, selected_pair)
+            st.pyplot(fig_bb)
+        else:
+            st.warning("No hay suficientes datos para calcular las Bandas de Bollinger.")
