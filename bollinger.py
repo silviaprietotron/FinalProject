@@ -56,6 +56,13 @@ def plot_data(df, selected_pair):
 
 # Función para graficar Bandas de Bollinger
 def plot_bollinger_bands(bollinger_df, selected_pair):
+    # Convertir las columnas a numérico en caso de que no lo sean
+    bollinger_df['lower_band'] = pd.to_numeric(bollinger_df['lower_band'], errors='coerce')
+    bollinger_df['close'] = pd.to_numeric(bollinger_df['close'], errors='coerce')
+
+    # Asegurarse de que no haya NaN antes de continuar
+    bollinger_df = bollinger_df.dropna(subset=['lower_band', 'close'])
+
     fig_bb, ax_bb = plt.subplots(figsize=(20, 10))
 
     # Graficar el precio de cierre
@@ -79,7 +86,6 @@ def plot_bollinger_bands(bollinger_df, selected_pair):
     ax_bb.legend()
 
     return fig_bb
-
 
 # Título de la aplicación y logo
 image = Image.open('logo_app.png')
