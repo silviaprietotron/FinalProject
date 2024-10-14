@@ -126,8 +126,10 @@ if st.button("Descargar y graficar datos"):
         st.session_state['df_bollinger'] = df_bollinger  # Guardar Bollinger en session_state
 
 # Mostrar las Bandas de Bollinger al presionar el botón
-if 'df_bollinger' in st.session_state:
-    if st.button("Mostrar Bandas de Bollinger"):
+if st.button("Mostrar Bandas de Bollinger"):
+    if 'df_bollinger' not in st.session_state:
+        st.warning("Primero descarga y grafica los datos del par de monedas.")
+    else:
         df_bollinger = st.session_state['df_bollinger']
 
         # Verificar que las Bandas de Bollinger se hayan calculado
@@ -136,3 +138,4 @@ if 'df_bollinger' in st.session_state:
             st.pyplot(fig_bb)
         else:
             st.warning("No hay suficientes datos para calcular las Bandas de Bollinger.")
+
