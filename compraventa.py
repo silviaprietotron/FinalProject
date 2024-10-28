@@ -23,13 +23,23 @@ def calcular_bandas_bollinger(df, ventana=20, num_sd=2):
     df_bollinger['desviación_estándar'] = df_bollinger['close'].rolling(window=ventana).std()
     df_bollinger['banda_superior'] = df_bollinger['media_móvil'] + (df_bollinger['desviación_estándar'] * num_sd)
     df_bollinger['banda_inferior'] = df_bollinger['media_móvil'] - (df_bollinger['desviación_estándar'] * num_sd)
+
+    # Convertir las columnas relevantes a float
+    df_bollinger['close'] = df_bollinger['close'].astype(float)
+    df_bollinger['banda_inferior'] = df_bollinger['banda_inferior'].astype(float)
+    df_bollinger['banda_superior'] = df_bollinger['banda_superior'].astype(float)
+    
     return df_bollinger
     
 # Función para calcular señales de compra/venta
 def calcular_senales(df_bollinger):
     df_bollinger['signal'] = 0
+    df_bollinger = df_bollinger.dropna(subset=['close', 'banda_inferior', 'banda_superior'])
+    
+    # Cálculo de señales
     df_bollinger.loc[df_bollinger['close'] < df_bollinger['banda_inferior'], 'signal'] = 1  # Señal de compra
     df_bollinger.loc[df_bollinger['close'] > df_bollinger['banda_superior'], 'signal'] = -1  # Señal de venta
+    
     return df_bollinger
 
 # Función para graficar datos de precios
