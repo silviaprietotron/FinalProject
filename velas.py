@@ -30,7 +30,7 @@ def calcular_bandas_bollinger(df, ventana=20, num_sd=2):
     df_bollinger['banda_superior'] = df_bollinger['banda_superior'].astype(float)
     
     return df_bollinger
-
+    
 # Función para calcular señales de compra/venta
 def calcular_senales(df_bollinger):
     df_bollinger['signal'] = 0
