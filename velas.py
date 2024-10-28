@@ -161,6 +161,10 @@ if st.button("Mostrar Señales de Compra y Venta"):
         
         st.write(f"**Señales de Compra:** {compra_count}")
         st.write(f"**Señales de Venta:** {venta_count}")
+        
+        fig_senales = graficar_senales(df_bollinger, par_seleccionado)
+        st.write("Esta gráfica muestra las señales de compra y venta basadas en las Bandas de Bollinger.")
+        st.plotly_chart(fig_senales)
 
 # Mostrar gráfico de velas al presionar el botón
 if st.button("Mostrar Gráfico de Velas"):
