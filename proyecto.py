@@ -1,132 +1,122 @@
 import streamlit as st
 import krakenex
 import pandas as pd
-from pyecharts import options as opts
-from pyecharts.charts import Line
+import plotly.graph_objects as go
 from PIL import Image
-from streamlit_echarts import st_pyecharts
 
-# Configuración de la API de Kraken
+# Configurar la API de Kraken
 api = krakenex.API()
 
 # Función para obtener datos OHLC
-def obtener_datos_ohlc(par, intervalo=60):
+def get_ohlc_data(pair, interval=60):
     try:
-        respuesta = api.query_public('OHLC', {'pair': par, 'interval': intervalo})
-        return respuesta['result'][par]
+        resp = api.query_public('OHLC', {'pair': pair, 'interval': interval})
+        return resp['result'][pair]
     except Exception as e:
         st.error(f"Error al obtener datos de Kraken: {e}")
         return None
 
 # Función para calcular Bandas de Bollinger
-def calcular_bandas_bollinger(df, ventana=20, num_desviaciones=2):
+def calcular_bandas_bollinger(df, ventana=20, num_sd=2):
     df_bollinger = df.copy()
     df_bollinger['media_móvil'] = df_bollinger['close'].rolling(window=ventana).mean()
-    df_bollinger['desviación'] = df_bollinger['close'].rolling(window=ventana).std()
-    df_bollinger['banda_superior'] = df_bollinger['media_móvil'] + (df_bollinger['desviación'] * num_desviaciones)
-    df_bollinger['banda_inferior'] = df_bollinger['media_móvil'] - (df_bollinger['desviación'] * num_desviaciones)
+    df_bollinger['desviación_estándar'] = df_bollinger['close'].rolling(window=ventana).std()
+    df_bollinger['banda_superior'] = df_bollinger['media_móvil'] + (df_bollinger['desviación_estándar'] * num_sd)
+    df_bollinger['banda_inferior'] = df_bollinger['media_móvil'] - (df_bollinger['desviación_estándar'] * num_sd)
     return df_bollinger
 
-# Función para graficar precios
-def graficar_precios(df, par_seleccionado):
-    grafico = (
-        Line(init_opts=opts.InitOpts(width="1000px", height="600px"))
-        .add_xaxis(df['fecha'].dt.strftime("%Y-%m-%d %H:%M").tolist())
-        .add_yaxis(f"Precio de cierre de {par_seleccionado}", df['close'].tolist(), is_smooth=True, label_opts=opts.LabelOpts(is_show=False))
-        .set_global_opts(
-            title_opts=opts.TitleOpts(title=f"Movimiento del par {par_seleccionado}"),
-            xaxis_opts=opts.AxisOpts(type_="category"),
-            yaxis_opts=opts.AxisOpts(name="Precio de cierre (EUR)"),
-            tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross")
-        )
+# Función para graficar datos de precios
+def graficar_datos(df, par_seleccionado):
+    fig = go.Figure()
+
+    # Añadir la línea de precios de cierre
+    fig.add_trace(go.Scatter(x=df['time'], y=df['close'], mode='lines', name=f'Precio de cierre de {par_seleccionado}', line=dict(color='blue')))
+
+    fig.update_layout(
+        title=f'Movimiento del par {par_seleccionado}',
+        xaxis_title='Fecha',
+        yaxis_title='Precio de cierre (EUR)',
+        hovermode="x unified"
     )
-    st_pyecharts(grafico)
+
+    return fig
 
 # Función para graficar Bandas de Bollinger
 def graficar_bandas_bollinger(df_bollinger, par_seleccionado):
-    grafico_bb = (
-        Line(init_opts=opts.InitOpts(width="1000px", height="600px"))
-        .add_xaxis(df_bollinger['fecha'].dt.strftime("%Y-%m-%d %H:%M").tolist())
-        .add_yaxis("Precio de cierre", df_bollinger['close'].tolist(), is_smooth=True, color="blue", label_opts=opts.LabelOpts(is_show=False))
-        .add_yaxis("Banda Superior", df_bollinger['banda_superior'].tolist(), is_smooth=True, color="red", linestyle_opts=opts.LineStyleOpts(width=2, type_="dashed"))
-        .add_yaxis("Banda Inferior", df_bollinger['banda_inferior'].tolist(), is_smooth=True, color="green", linestyle_opts=opts.LineStyleOpts(width=2, type_="dashed"))
-        .add_yaxis("Media Móvil", df_bollinger['media_móvil'].tolist(), is_smooth=True, color="orange")
-        .set_global_opts(
-            title_opts=opts.TitleOpts(title=f"Bandas de Bollinger para {par_seleccionado}"),
-            xaxis_opts=opts.AxisOpts(type_="category"),
-            yaxis_opts=opts.AxisOpts(name="Precio (EUR)"),
-            tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross"),
-            legend_opts=opts.LegendOpts(is_show=False)
-        )
-    )
-    st_pyecharts(grafico_bb)
+    fig = go.Figure()
 
-    # Descripciones personalizadas a cada lado
-    st.markdown(
-        """
-        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-            <div style="color: red; font-weight: bold;">Banda Superior</div>
-            <div style="color: green; font-weight: bold;">Banda Inferior</div>
-            <div style="color: orange; font-weight: bold;">Media Móvil</div>
-        </div>
-        """,
-        unsafe_allow_html=True
+    # Añadir las Bandas de Bollinger y la media móvil
+    fig.add_trace(go.Scatter(x=df_bollinger['time'], y=df_bollinger['banda_superior'], mode='lines', name='Banda Superior', line=dict(color='red', dash='dot')))
+    fig.add_trace(go.Scatter(x=df_bollinger['time'], y=df_bollinger['banda_inferior'], mode='lines', name='Banda Inferior', line=dict(color='green', dash='dot')))
+    fig.add_trace(go.Scatter(x=df_bollinger['time'], y=df_bollinger['media_móvil'], mode='lines', name='Media Móvil', line=dict(color='orange')))
+
+    # Configurar el gráfico
+    fig.update_layout(
+        title=f'Bandas de Bollinger para {par_seleccionado}',
+        xaxis_title='Fecha',
+        yaxis_title='Precio (EUR)',
+        hovermode="x unified",
+        annotations=[
+            dict(xref="paper", yref="paper", x=-0.1, y=1.15, showarrow=False, text="Banda Superior", font=dict(color="red")),
+            dict(xref="paper", yref="paper", x=-0.1, y=1.05, showarrow=False, text="Línea que muestra el límite superior de precios", font=dict(color="black")),
+            dict(xref="paper", yref="paper", x=1.1, y=1.15, showarrow=False, text="Banda Inferior", font=dict(color="green")),
+            dict(xref="paper", yref="paper", x=1.1, y=1.05, showarrow=False, text="Línea que muestra el límite inferior de precios", font=dict(color="black")),
+            dict(xref="paper", yref="paper", x=0.5, y=1.15, showarrow=False, text="Media Móvil", font=dict(color="orange")),
+            dict(xref="paper", yref="paper", x=0.5, y=1.05, showarrow=False, text="Media del precio en la ventana seleccionada", font=dict(color="black"))
+        ]
     )
 
-# Título y logo
-imagen = Image.open('logo_app.png')
-st.image(imagen, width=200)
+    return fig
+
+# Título de la aplicación y logo
+image = Image.open('logo_app.png')
+st.image(image, width=200)
 st.title("Visualización del Par de Monedas en Kraken")
+st.write("Esta aplicación permite visualizar el movimiento de un par de monedas seleccionado en Kraken y calcular Bandas de Bollinger, mostrando la media móvil y los límites de variabilidad del precio.")
 
-# Descripción introductoria
-st.markdown(
-    """
-    Bienvenido a la aplicación de visualización de criptomonedas. 
-    Aquí puedes seleccionar un par de monedas para analizar su movimiento y ver indicadores técnicos 
-    como las Bandas de Bollinger, que muestran volatilidad y posibles puntos de entrada y salida.
-    """
-)
-
-# Obtener pares de monedas
+# Obtener todos los pares de criptomonedas
 try:
-    respuesta_pares = api.query_public('AssetPairs')
-    todos_pares = list(respuesta_pares['result'].keys())
+    resp_pairs = api.query_public('AssetPairs')
+    all_pairs = list(resp_pairs['result'].keys())
 except Exception as e:
     st.error(f"Error al obtener los pares de monedas: {e}")
-    todos_pares = []
+    all_pairs = []
 
-# Selección de par de monedas
-par_seleccionado = st.selectbox("Selecciona el par de monedas:", todos_pares)
+# Input de usuario: selección de par de monedas
+par_seleccionado = st.selectbox("Selecciona el par de monedas:", all_pairs)
 
 # Botón para descargar y graficar datos
 if st.button("Descargar y graficar datos"):
-    datos_ohlc = obtener_datos_ohlc(par_seleccionado, intervalo=60)
+    # Descargar datos del par seleccionado con intervalo fijo de 60 segundos
+    datos_ohlc = get_ohlc_data(par_seleccionado, interval=60)
 
     if datos_ohlc is not None:
-        columnas = ['fecha', 'apertura', 'máximo', 'mínimo', 'cierre', 'vwap', 'volumen', 'conteo']
+        # Convertir a DataFrame
+        columnas = ['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count']
         df_precios = pd.DataFrame(datos_ohlc, columns=columnas)
-        df_precios['fecha'] = pd.to_datetime(df_precios['fecha'], unit='s')
+        df_precios['time'] = pd.to_datetime(df_precios['time'], unit='s')
 
+        # Guardar los DataFrames en session_state
         st.session_state['df_precios'] = df_precios
 
-        # Graficar precios
-        graficar_precios(df_precios, par_seleccionado)
+        # Graficar los datos de precios
+        fig = graficar_datos(df_precios, par_seleccionado)
+        st.plotly_chart(fig)
 
-        # Calcular y guardar Bandas de Bollinger
+        # Calcular las Bandas de Bollinger
         df_bollinger = calcular_bandas_bollinger(df_precios)
-        st.session_state['df_bollinger'] = df_bollinger
+        st.session_state['df_bollinger'] = df_bollinger  # Guardar Bollinger en session_state
 
-# Botón para mostrar Bandas de Bollinger
+# Mostrar las Bandas de Bollinger al presionar el botón
 if st.button("Mostrar Bandas de Bollinger"):
     if 'df_bollinger' not in st.session_state:
         st.warning("Primero descarga y grafica los datos del par de monedas.")
     else:
         df_bollinger = st.session_state['df_bollinger']
-        
+
+        # Verificar que las Bandas de Bollinger se hayan calculado
         if df_bollinger['media_móvil'].notna().any():
-            graficar_bandas_bollinger(df_bollinger, par_seleccionado)
+            fig_bb = graficar_bandas_bollinger(df_bollinger, par_seleccionado)
+            st.plotly_chart(fig_bb)
         else:
             st.warning("No hay suficientes datos para calcular las Bandas de Bollinger.")
-
-
-
