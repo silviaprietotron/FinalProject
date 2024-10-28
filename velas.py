@@ -107,7 +107,7 @@ def graficar_velas(df, par_seleccionado):
 image = Image.open('logo_app.png')
 st.image(image, width=200)
 st.title("Visualización del Par de Monedas en Kraken")
-st.write("Esta aplicación permite visualizar el movimiento de un par de monedas seleccionado en Kraken y calcular Bandas de Bollinger, mostrando la media móvil y los límites de variabilidad del precio.")
+st.write("Esta aplicación permite seleccionar un par de monedas de Kraken, visualizar su precio histórico en diferentes formatos, y calcular Bandas de Bollinger para identificar señales de compra y venta. Las Bandas de Bollinger incluyen la media móvil y las bandas superior e inferior, que representan la variabilidad del precio.")
 
 # Obtener todos los pares de criptomonedas
 try:
