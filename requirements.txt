@@ -2,4 +2,4 @@ streamlit
 krakenex
 pandas
 matplotlib
-
+plotly
