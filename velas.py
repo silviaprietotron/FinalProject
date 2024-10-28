@@ -30,7 +30,7 @@ def calcular_bandas_bollinger(df, ventana=20, num_sd=2):
     df_bollinger['banda_superior'] = df_bollinger['banda_superior'].astype(float)
     
     return df_bollinger
-    
+
 # Función para calcular señales de compra/venta
 def calcular_senales(df_bollinger):
     df_bollinger['signal'] = 0
@@ -88,20 +88,18 @@ def graficar_senales(df_bollinger, par_seleccionado):
     )
     return fig
 
-# Función para graficar gráfico de velas
+# Función para graficar velas
 def graficar_velas(df, par_seleccionado):
     fig = go.Figure(data=[go.Candlestick(x=df['time'],
                                           open=df['open'],
                                           high=df['high'],
                                           low=df['low'],
-                                          close=df['close'],
-                                          name=f'Gráfico de Velas de {par_seleccionado}')])
+                                          close=df['close'])])
     fig.update_layout(
         title=f'Gráfico de Velas para {par_seleccionado}',
         xaxis_title='Fecha',
         yaxis_title='Precio (EUR)',
-        xaxis_rangeslider_visible=False,
-        hovermode="x unified",
+        hovermode="x unified"
     )
     return fig
 
@@ -158,4 +156,9 @@ if st.button("Mostrar Señales de Compra y Venta"):
         df_bollinger = calcular_senales(df_bollinger)  # Calcular señales
         
         # Mostrar señales de compra y venta
-        compra_count = df_bollinger[df_b]
+        compra_count = df_bollinger[df_bollinger['signal'] == 1].shape[0]
+        venta_count = df_bollinger[df_bollinger['signal'] == -1].shape[0]
+        
+        st.write(f"**Señales de Compra:** {compra_count}")
+        st.write(f"**Señales de Venta:** {venta_count
+
