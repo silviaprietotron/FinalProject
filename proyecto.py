@@ -56,14 +56,6 @@ def graficar_bandas_bollinger(df_bollinger, par_seleccionado):
         xaxis_title='Fecha',
         yaxis_title='Precio (EUR)',
         hovermode="x unified",
-        annotations=[
-            dict(xref="paper", yref="paper", x=-0.1, y=1.15, showarrow=False, text="Banda Superior", font=dict(color="red")),
-            dict(xref="paper", yref="paper", x=-0.1, y=1.05, showarrow=False, text="Línea que muestra el límite superior de precios", font=dict(color="black")),
-            dict(xref="paper", yref="paper", x=1.1, y=1.15, showarrow=False, text="Banda Inferior", font=dict(color="green")),
-            dict(xref="paper", yref="paper", x=1.1, y=1.05, showarrow=False, text="Línea que muestra el límite inferior de precios", font=dict(color="black")),
-            dict(xref="paper", yref="paper", x=0.5, y=1.15, showarrow=False, text="Media Móvil", font=dict(color="orange")),
-            dict(xref="paper", yref="paper", x=0.5, y=1.05, showarrow=False, text="Media del precio en la ventana seleccionada", font=dict(color="black"))
-        ]
     )
 
     return fig
