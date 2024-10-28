@@ -3,5 +3,3 @@ krakenex
 pandas
 matplotlib
 plotly
-pyecharts
-streamlit-echarts
