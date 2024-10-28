@@ -160,5 +160,5 @@ if st.button("Mostrar Señales de Compra y Venta"):
         venta_count = df_bollinger[df_bollinger['signal'] == -1].shape[0]
         
         st.write(f"**Señales de Compra:** {compra_count}")
-        st.write(f"**Señales de Venta:** {venta_count
+        st.write(f"**Señales de Venta:** {venta_count}")
 
