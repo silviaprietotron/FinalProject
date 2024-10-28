@@ -55,15 +55,7 @@ def graficar_bandas_bollinger(df_bollinger, par_seleccionado):
         title=f'Bandas de Bollinger para {par_seleccionado}',
         xaxis_title='Fecha',
         yaxis_title='Precio (EUR)',
-        hovermode="x unified",
-        annotations=[
-            dict(xref="paper", yref="paper", x=-0.1, y=1.15, showarrow=False, text="Banda Superior", font=dict(color="red")),
-            dict(xref="paper", yref="paper", x=-0.1, y=1.05, showarrow=False, text="Línea que muestra el límite superior de precios", font=dict(color="black")),
-            dict(xref="paper", yref="paper", x=1.1, y=1.15, showarrow=False, text="Banda Inferior", font=dict(color="green")),
-            dict(xref="paper", yref="paper", x=1.1, y=1.05, showarrow=False, text="Línea que muestra el límite inferior de precios", font=dict(color="black")),
-            dict(xref="paper", yref="paper", x=0.5, y=1.15, showarrow=False, text="Media Móvil", font=dict(color="orange")),
-            dict(xref="paper", yref="paper", x=0.5, y=1.05, showarrow=False, text="Media del precio en la ventana seleccionada", font=dict(color="black"))
-        ]
+        hovermode="x unified"
     )
 
     return fig
@@ -117,7 +109,23 @@ if st.button("Mostrar Bandas de Bollinger"):
         # Verificar que las Bandas de Bollinger se hayan calculado
         if df_bollinger['media_móvil'].notna().any():
             fig_bb = graficar_bandas_bollinger(df_bollinger, par_seleccionado)
-            st.plotly_chart(fig_bb)
+            
+            # Crear dos columnas para acomodar el gráfico y las leyendas
+            col1, col2 = st.columns([4, 1])
+            col1.plotly_chart(fig_bb)
+
+            # Descripción de cada línea en la leyenda
+            with col2:
+                st.markdown("### Leyenda")
+                st.markdown("<span style='color:red; font-weight:bold'>Banda Superior</span>", unsafe_allow_html=True)
+                st.write("Límite superior de precios, indicando alta volatilidad.")
+                
+                st.markdown("<span style='color:green; font-weight:bold'>Banda Inferior</span>", unsafe_allow_html=True)
+                st.write("Límite inferior de precios, indicando baja volatilidad.")
+                
+                st.markdown("<span style='color:orange; font-weight:bold'>Media Móvil</span>", unsafe_allow_html=True)
+                st.write("Promedio de precio en la ventana seleccionada.")
         else:
             st.warning("No hay suficientes datos para calcular las Bandas de Bollinger.")
+
 
