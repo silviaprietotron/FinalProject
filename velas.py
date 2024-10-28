@@ -174,5 +174,5 @@ if st.button("Mostrar Gráfico de Velas"):
         df_precios = st.session_state['df_precios']
         fig_velas = graficar_velas(df_precios, par_seleccionado)
         st.plotly_chart(fig_velas)
-
+        st.write("Este gráfico muestra la representación de velas del movimiento del par de monedas seleccionado.")
 
