@@ -158,5 +158,4 @@ if st.button("Mostrar Señales de Compra y Venta"):
         df_bollinger = calcular_senales(df_bollinger)  # Calcular señales
         
         # Mostrar señales de compra y venta
-        compra_count = df_bollinger[df_bollinger['signal'] == 1].shape[0]
-        venta_count = df_b
+        compra_count = df_bollinger[df_b
