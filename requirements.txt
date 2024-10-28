@@ -3,3 +3,4 @@ krakenex
 pandas
 matplotlib
 plotly
+pyechart
