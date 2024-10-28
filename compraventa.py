@@ -139,6 +139,14 @@ if st.button("Mostrar Señales de Compra y Venta"):
     else:
         df_bollinger = st.session_state['df_bollinger']
         df_bollinger = calcular_senales(df_bollinger)  # Calcular señales
+        
+        # Mostrar señales de compra y venta
+        compra_count = df_bollinger[df_bollinger['signal'] == 1].shape[0]
+        venta_count = df_bollinger[df_bollinger['signal'] == -1].shape[0]
+        
+        st.write(f"**Señales de Compra:** {compra_count}")
+        st.write(f"**Señales de Venta:** {venta_count}")
+        
         fig_senales = graficar_senales(df_bollinger, par_seleccionado)
         st.write("Esta gráfica muestra las señales de compra y venta basadas en las Bandas de Bollinger.")
         st.plotly_chart(fig_senales)
