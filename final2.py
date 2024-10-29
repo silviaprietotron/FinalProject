@@ -40,8 +40,29 @@ class KrakenApp:
         return df_bollinger
 
     def graficar_datos(self, df, par_seleccionado):
+        precio_actual = df['close'].iloc[-1]
+        precio_anterior = df['close'].iloc[-2] if len(df) > 1 else precio_actual
+        cambio_porcentual = ((precio_actual - precio_anterior) / precio_anterior) * 100 if precio_anterior != 0 else 0
+        
+        # Colores para el cambio porcentual
+        color_cambio = 'green' if cambio_porcentual > 0 else 'red'
+
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=df['time'], y=df['close'], mode='lines', name=f'Precio de cierre de {par_seleccionado}', line=dict(color='blue')))
+        
+        # Añadir anotación de cambio porcentual
+        fig.add_annotation(
+            x=df['time'].iloc[-1],
+            y=precio_actual,
+            text=f"{cambio_porcentual:.2f}%",
+            showarrow=True,
+            arrowhead=2,
+            ax=0,
+            ay=-40,
+            bgcolor=color_cambio,
+            font=dict(color='white')
+        )
+
         fig.update_layout(title=f'Movimiento del par {par_seleccionado}', xaxis_title='Fecha', yaxis_title='Precio de cierre (EUR)', hovermode="x unified")
         return fig
 
@@ -94,18 +115,6 @@ class KrakenApp:
                 self.df_precios = pd.DataFrame(datos_ohlc, columns=columnas)
                 self.df_precios['time'] = pd.to_datetime(self.df_precios['time'], unit='s')
                 st.session_state['df_precios'] = self.df_precios
-                
-                # Calcular y mostrar datos relevantes
-                precio_actual = self.df_precios['close'].iloc[-1]
-                precio_anterior = self.df_precios['close'].iloc[-2]
-                cambio_porcentual = ((precio_actual - precio_anterior) / precio_anterior) * 100
-                
-                # Mostrar datos porcentuales
-                if cambio_porcentual >= 0:
-                    st.markdown(f"<h5 style='color: green;'>Cambio porcentual: {cambio_porcentual:.2f}%</h5>", unsafe_allow_html=True)
-                else:
-                    st.markdown(f"<h5 style='color: red;'>Cambio porcentual: {cambio_porcentual:.2f}%</h5>", unsafe_allow_html=True)
-
                 fig = self.graficar_datos(self.df_precios, par_seleccionado)
                 st.write("Esta gráfica muestra el movimiento histórico del precio de cierre para el par de monedas seleccionado.")
                 st.plotly_chart(fig)
@@ -133,19 +142,22 @@ class KrakenApp:
                 df_bollinger = st.session_state['df_bollinger']
                 df_bollinger = self.calcular_senales(df_bollinger)
                 fig_senales = self.graficar_senales(df_bollinger, par_seleccionado)
-                st.write("Esta gráfica muestra las señales de compra y venta para el par seleccionado.")
+                st.write("Esta gráfica muestra las señales de compra y venta según las Bandas de Bollinger.")
                 st.plotly_chart(fig_senales)
 
-        # Mostrar gráfico de velas
+        # Mostrar gráfico de velas al presionar el botón
         if st.button("Mostrar Gráfico de Velas"):
             if 'df_precios' not in st.session_state:
                 st.warning("Primero descarga y grafica los datos del par de monedas.")
             else:
-                fig_velas = self.graficar_velas(self.df_precios, par_seleccionado)
-                st.write("Este gráfico de velas muestra el precio de apertura, cierre, máximo y mínimo para el par seleccionado.")
+                df_precios = st.session_state['df_precios']
+                fig_velas = self.graficar_velas(df_precios, par_seleccionado)
+                st.write("Esta gráfica muestra el gráfico de velas para el par seleccionado.")
                 st.plotly_chart(fig_velas)
 
+# Iniciar la aplicación
 if __name__ == "__main__":
     app = KrakenApp()
     app.run()
+
 
