@@ -112,18 +112,18 @@ class AnalisisFinanciero:
             return None
 
     def graficar_velas(df, par_seleccionado):
-    fig = go.Figure(data=[go.Candlestick(x=df['time'],
-                                          open=df['open'],
-                                          high=df['high'],
-                                          low=df['low'],
-                                          close=df['close'])])
-    fig.update_layout(
-        title=f'Gráfico de Velas para {par_seleccionado}',
-        xaxis_title='Fecha',
-        yaxis_title='Precio (EUR)',
-        hovermode="x unified",
-    )
-    return fig
+        fig = go.Figure(data=[go.Candlestick(x=df['time'],
+                                              open=df['open'],
+                                              high=df['high'],
+                                              low=df['low'],
+                                              close=df['close'])])
+        fig.update_layout(
+            title=f'Gráfico de Velas para {par_seleccionado}',
+            xaxis_title='Fecha',
+            yaxis_title='Precio (EUR)',
+            hovermode="x unified",
+        )
+        return fig
 
 
 # Título de la aplicación y logo
