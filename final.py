@@ -72,7 +72,7 @@ class AnalisisFinanciero:
             return None
 
     def graficar_bandas_bollinger(self):
-        if self.df_bollinger is not None:
+        if self.df_bollinger is not None and not self.df_bollinger['media_móvil'].isnull().all():
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=self.df_bollinger['time'], y=self.df_bollinger['banda_superior'], mode='lines', name='Banda Superior', line=dict(color='red', dash='dot')))
             fig.add_trace(go.Scatter(x=self.df_bollinger['time'], y=self.df_bollinger['banda_inferior'], mode='lines', name='Banda Inferior', line=dict(color='green', dash='dot')))
@@ -85,8 +85,9 @@ class AnalisisFinanciero:
             )
             return fig
         else:
-            st.warning("No hay datos de Bandas de Bollinger disponibles para graficar.")
+            st.warning("No hay suficientes datos para graficar las Bandas de Bollinger.")
             return None
+
 
     def graficar_senales(self):
         if self.df_bollinger is not None:
@@ -167,10 +168,11 @@ if st.button("Mostrar Bandas de Bollinger"):
     else:
         df_bollinger = st.session_state['df_bollinger']
         if df_bollinger['media_móvil'].isnull().all():
-            st.warning("No se pueden mostrar las Bandas de Bollinger porque no hay datos suficientes.")
+            st.warning("No hay datos suficientes para mostrar las Bandas de Bollinger.")
         else:
             fig_bollinger = analisis.graficar_bandas_bollinger()
-            st.plotly_chart(fig_bollinger)
+            if fig_bollinger is not None:
+                st.plotly_chart(fig_bollinger)
 
 # Mostrar señales de compra y venta al presionar el botón
 if st.button("Mostrar Señales de Compra y Venta"):
