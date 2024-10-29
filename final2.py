@@ -40,8 +40,14 @@ class KrakenApp:
         return df_bollinger
 
     def graficar_datos(self, df, par_seleccionado):
+        if len(df) < 2:
+            st.error("No hay suficientes datos para calcular el cambio porcentual.")
+            return None
+
         precio_actual = df['close'].iloc[-1]
-        precio_anterior = df['close'].iloc[-2] if len(df) > 1 else precio_actual
+        precio_anterior = df['close'].iloc[-2]
+
+        # Calcular cambio porcentual
         cambio_porcentual = ((precio_actual - precio_anterior) / precio_anterior) * 100 if precio_anterior != 0 else 0
         
         # Colores para el cambio porcentual
@@ -116,8 +122,9 @@ class KrakenApp:
                 self.df_precios['time'] = pd.to_datetime(self.df_precios['time'], unit='s')
                 st.session_state['df_precios'] = self.df_precios
                 fig = self.graficar_datos(self.df_precios, par_seleccionado)
-                st.write("Esta gráfica muestra el movimiento histórico del precio de cierre para el par de monedas seleccionado.")
-                st.plotly_chart(fig)
+                if fig:  # Solo mostrar la gráfica si no hay error
+                    st.write("Esta gráfica muestra el movimiento histórico del precio de cierre para el par de monedas seleccionado.")
+                    st.plotly_chart(fig)
                 self.df_bollinger = self.calcular_bandas_bollinger(self.df_precios)
                 st.session_state['df_bollinger'] = self.df_bollinger
 
@@ -131,11 +138,9 @@ class KrakenApp:
                     fig_bb = self.graficar_bandas_bollinger(df_bollinger, par_seleccionado)
                     st.write("Esta gráfica muestra las Bandas de Bollinger para el par seleccionado.")
                     st.plotly_chart(fig_bb)
-                else:
-                    st.warning("No hay suficientes datos para calcular las Bandas de Bollinger.")
 
-        # Mostrar señales de compra/venta al presionar el botón
-        if st.button("Mostrar Señales de Compra y Venta"):
+        # Mostrar señales al presionar el botón
+        if st.button("Mostrar Señales de Compra/Venta"):
             if 'df_bollinger' not in st.session_state:
                 st.warning("Primero descarga y grafica los datos del par de monedas.")
             else:
@@ -159,5 +164,3 @@ class KrakenApp:
 if __name__ == "__main__":
     app = KrakenApp()
     app.run()
-
-
