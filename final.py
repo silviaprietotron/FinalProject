@@ -1,108 +1,163 @@
 import streamlit as st
+import krakenex
 import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
-import requests
-import json
+import plotly.graph_objects as go
+from PIL import Image
 
-class AnalizadorBollinger:
-    def __init__(self, ventana: int = 20, std_dev: float = 2):
-        self.ventana = ventana
-        self.std_dev = std_dev
+# Configurar la API de Kraken
+api = krakenex.API()
 
-    def calcular_bandas(self, df: pd.DataFrame) -> pd.DataFrame:
-        df['media_movil'] = df['close'].rolling(window=self.ventana).mean()
-        df['std_dev'] = df['close'].rolling(window=self.ventana).std()
-        df['banda_superior'] = df['media_movil'] + (df['std_dev'] * self.std_dev)
-        df['banda_inferior'] = df['media_movil'] - (df['std_dev'] * self.std_dev)
-        
-        # Convertimos solo las columnas numéricas a float para evitar problemas
-        columnas_numericas = ['close', 'media_movil', 'std_dev', 'banda_superior', 'banda_inferior']
-        df[columnas_numericas] = df[columnas_numericas].astype(float)
+# Clase para análisis financiero
+class AnalisisFinanciero:
+    def __init__(self, pair):
+        self.pair = pair
+        self.df_precios = None
+        self.df_bollinger = None
 
-        return df
+    def obtener_datos_ohlc(self, interval=60):
+        try:
+            resp = api.query_public('OHLC', {'pair': self.pair, 'interval': interval})
+            self.df_precios = pd.DataFrame(resp['result'][self.pair], columns=['time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count'])
+            self.df_precios['time'] = pd.to_datetime(self.df_precios['time'], unit='s')
+            return self.df_precios
+        except Exception as e:
+            st.error(f"Error al obtener datos de Kraken: {e}")
+            return None
 
-    def calcular_senales(self, df_bollinger: pd.DataFrame) -> pd.DataFrame:
-        # Añadimos la columna 'signal' solo para las señales de compra/venta
-        df_bollinger['signal'] = 0
-        df_bollinger.loc[df_bollinger['close'] < df_bollinger['banda_inferior'], 'signal'] = 1  # Señal de compra
-        df_bollinger.loc[df_bollinger['close'] > df_bollinger['banda_superior'], 'signal'] = -1 # Señal de venta
+    def calcular_bandas_bollinger(self, ventana=20, num_sd=2):
+        if self.df_precios is not None:
+            df_bollinger = self.df_precios.copy()
+            df_bollinger['media_móvil'] = df_bollinger['close'].rolling(window=ventana).mean()
+            df_bollinger['desviación_estándar'] = df_bollinger['close'].rolling(window=ventana).std()
+            df_bollinger['banda_superior'] = df_bollinger['media_móvil'] + (df_bollinger['desviación_estándar'] * num_sd)
+            df_bollinger['banda_inferior'] = df_bollinger['media_móvil'] - (df_bollinger['desviación_estándar'] * num_sd)
 
-        return df_bollinger
+            # Convertir las columnas relevantes a float
+            df_bollinger['close'] = df_bollinger['close'].astype(float)
+            df_bollinger['banda_inferior'] = df_bollinger['banda_inferior'].astype(float)
+            df_bollinger['banda_superior'] = df_bollinger['banda_superior'].astype(float)
 
-def obtener_datos(par: str, desde: str, hasta: str) -> pd.DataFrame:
-    url = f'https://api.kraken.com/0/public/OHLC?pair={par}&since={desde}'
-    response = requests.get(url)
-    data = json.loads(response.text)
+            self.df_bollinger = df_bollinger
+            return df_bollinger
+        else:
+            st.warning("No hay datos de precios disponibles para calcular Bandas de Bollinger.")
+            return None
 
-    if 'result' in data:
-        # Procesar el resultado para convertirlo en un DataFrame
-        ohlc_data = data['result'][par]
-        df = pd.DataFrame(ohlc_data, columns=['open_time', 'open', 'high', 'low', 'close', 'vwap', 'volume', 'count'])
-        df['open_time'] = pd.to_datetime(df['open_time'], unit='s')
-        df.set_index('open_time', inplace=True)
-        
-        # Convertir columnas relevantes a float
-        df[['open', 'high', 'low', 'close', 'vwap', 'volume']] = df[['open', 'high', 'low', 'close', 'vwap', 'volume']].astype(float)
+    def calcular_senales(self):
+        if self.df_bollinger is not None:
+            self.df_bollinger['signal'] = 0
+            self.df_bollinger = self.df_bollinger.dropna(subset=['close', 'banda_inferior', 'banda_superior'])
 
-        return df
+            # Cálculo de señales
+            self.df_bollinger.loc[self.df_bollinger['close'] < self.df_bollinger['banda_inferior'], 'signal'] = 1  # Señal de compra
+            self.df_bollinger.loc[self.df_bollinger['close'] > self.df_bollinger['banda_superior'], 'signal'] = -1  # Señal de venta
+            return self.df_bollinger
+        else:
+            st.warning("No hay datos de Bandas de Bollinger disponibles para calcular señales.")
+            return None
+
+    def graficar_datos(self):
+        if self.df_precios is not None:
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=self.df_precios['time'], y=self.df_precios['close'], mode='lines', name=f'Precio de cierre de {self.pair}', line=dict(color='blue')))
+            fig.update_layout(
+                title=f'Movimiento del par {self.pair}',
+                xaxis_title='Fecha',
+                yaxis_title='Precio de cierre (EUR)',
+                hovermode="x unified"
+            )
+            return fig
+        else:
+            st.warning("No hay datos de precios disponibles para graficar.")
+            return None
+
+    def graficar_bandas_bollinger(self):
+        if self.df_bollinger is not None:
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=self.df_bollinger['time'], y=self.df_bollinger['banda_superior'], mode='lines', name='Banda Superior', line=dict(color='red', dash='dot')))
+            fig.add_trace(go.Scatter(x=self.df_bollinger['time'], y=self.df_bollinger['banda_inferior'], mode='lines', name='Banda Inferior', line=dict(color='green', dash='dot')))
+            fig.add_trace(go.Scatter(x=self.df_bollinger['time'], y=self.df_bollinger['media_móvil'], mode='lines', name='Media Móvil', line=dict(color='orange')))
+            fig.update_layout(
+                title=f'Bandas de Bollinger para {self.pair}',
+                xaxis_title='Fecha',
+                yaxis_title='Precio (EUR)',
+                hovermode="x unified",
+            )
+            return fig
+        else:
+            st.warning("No hay datos de Bandas de Bollinger disponibles para graficar.")
+            return None
+
+    def graficar_senales(self):
+        if self.df_bollinger is not None:
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=self.df_bollinger['time'], y=self.df_bollinger['close'], mode='lines', name='Precio de cierre', line=dict(color='blue')))
+            
+            # Añadir señales de compra y venta
+            buy_signals = self.df_bollinger[self.df_bollinger['signal'] == 1]
+            sell_signals = self.df_bollinger[self.df_bollinger['signal'] == -1]
+            
+            fig.add_trace(go.Scatter(x=buy_signals['time'], y=buy_signals['close'], mode='markers', name='Señal de Compra', marker=dict(color='green', symbol='triangle-up', size=10)))
+            fig.add_trace(go.Scatter(x=sell_signals['time'], y=sell_signals['close'], mode='markers', name='Señal de Venta', marker=dict(color='red', symbol='triangle-down', size=10)))
+            
+            fig.update_layout(
+                title=f'Señales de Compra y Venta para {self.pair}',
+                xaxis_title='Fecha',
+                yaxis_title='Precio (EUR)',
+                hovermode="x unified",
+            )
+            return fig
+        else:
+            st.warning("No hay datos de Bandas de Bollinger disponibles para graficar señales.")
+            return None
+
+# Título de la aplicación y logo
+image = Image.open('logo_app.png')
+st.image(image, width=200)
+st.title("Visualización del Par de Monedas en Kraken")
+st.write("Esta aplicación permite seleccionar un par de monedas de Kraken, visualizar su precio histórico en diferentes formatos, y calcular Bandas de Bollinger para identificar señales de compra y venta.")
+
+# Obtener todos los pares de criptomonedas
+try:
+    resp_pairs = api.query_public('AssetPairs')
+    all_pairs = list(resp_pairs['result'].keys())
+except Exception as e:
+    st.error(f"Error al obtener los pares de monedas: {e}")
+    all_pairs = []
+
+# Input de usuario: selección de par de monedas
+par_seleccionado = st.selectbox("Selecciona el par de monedas:", all_pairs)
+
+# Crear objeto de análisis financiero
+analisis = AnalisisFinanciero(par_seleccionado)
+
+# Botón para descargar y graficar datos
+if st.button("Descargar y graficar datos"):
+    df_precios = analisis.obtener_datos_ohlc(interval=60)
+    if df_precios is not None:
+        st.session_state['df_precios'] = df_precios
+        fig = analisis.graficar_datos()
+        st.write("Esta gráfica muestra el movimiento histórico del precio de cierre para el par de monedas seleccionado.")
+        st.plotly_chart(fig)
+        df_bollinger = analisis.calcular_bandas_bollinger()
+        st.session_state['df_bollinger'] = df_bollinger
+
+# Mostrar las Bandas de Bollinger al presionar el botón
+if st.button("Mostrar Bandas de Bollinger"):
+    if 'df_bollinger' not in st.session_state:
+        st.warning("Primero descarga y grafica los datos del par de monedas.")
     else:
-        st.error("Error al obtener datos de Kraken")
-        return pd.DataFrame()  # Retornar un DataFrame vacío en caso de error
+        df_bollinger = st.session_state['df_bollinger']
+        if df_bollinger['media_móvil'].notna().any():
+            fig_bb = analisis.graficar_bandas_bollinger()
+            st.write("Esta gráfica muestra las Bandas de Bollinger para el par seleccionado, incluyendo la media móvil y las bandas superior e inferior de variabilidad.")
+            st.plotly_chart(fig_bb)
+        else:
+            st.warning("No hay suficientes datos para calcular las Bandas de Bollinger.")
 
-def graficar_velas(df: pd.DataFrame, par: str):
-    # Gráfico de velas
-    fig, ax = plt.subplots(figsize=(10, 5))
-    for i in range(len(df)):
-        color = 'green' if df['close'][i] >= df['open'][i] else 'red'
-        ax.bar(df.index[i], df['close'][i] - df['open'][i], bottom=df['open'][i], color=color, width=0.001)
-        ax.bar(df.index[i], df['high'][i] - df['close'][i] if color == 'green' else df['high'][i] - df['open'][i],
-               bottom=df['close'][i] if color == 'green' else df['open'][i], color=color, width=0.001)
-        ax.bar(df.index[i], df['low'][i] - df['open'][i] if color == 'green' else df['low'][i] - df['close'][i],
-               bottom=df['open'][i] if color == 'green' else df['close'][i], color=color, width=0.001)
-        
-    ax.set_title(f'Gráfico de Velas de {par}')
-    ax.set_xlabel('Fecha')
-    ax.set_ylabel('Precio')
-    plt.xticks(rotation=45)
-    st.pyplot(fig)
-
-def graficar_bollinger(df: pd.DataFrame):
-    # Gráfico de Bandas de Bollinger
-    fig, ax = plt.subplots(figsize=(10, 5))
-    ax.plot(df.index, df['close'], label='Precio de Cierre', color='blue')
-    ax.plot(df.index, df['banda_superior'], label='Banda Superior', color='orange')
-    ax.plot(df.index, df['banda_inferior'], label='Banda Inferior', color='red')
-    ax.fill_between(df.index, df['banda_superior'], df['banda_inferior'], color='lightgrey', alpha=0.5)
-    
-    ax.set_title('Bandas de Bollinger')
-    ax.set_xlabel('Fecha')
-    ax.set_ylabel('Precio')
-    ax.legend()
-    plt.xticks(rotation=45)
-    st.pyplot(fig)
-
-def main():
-    st.title('Análisis de Criptomonedas')
-    
-    # Selector de par de monedas
-    par = st.selectbox('Selecciona el par de monedas', ['BTCUSD', 'ETHUSD', 'XRPUSD'])
-    
-    # Fechas
-    desde = st.date_input('Desde', pd.to_datetime('2023-01-01'))
-    hasta = st.date_input('Hasta', pd.to_datetime('today'))
-    
-    # Obtener datos
-    df = obtener_datos(par, desde.timestamp(), hasta.timestamp())
-    
-    if not df.empty:
-        analizador = AnalizadorBollinger()
-        df_bollinger = analizador.calcular_bandas(df)
-        df_bollinger = analizador.calcular_senales(df_bollinger)
-
-        # Graficar velas y Bandas de Bollinger
-        graficar_velas(df, par)
-        graficar_bollinger(df_bollinger)
-
-if __name__ == "__main__":
-    main()
+# Mostrar señales de compra/venta al presionar el botón
+if st.button("Mostrar Señales de Compra y Venta"):
+    if 'df_bollinger' not in st.session_state:
+        st.warning("Primero descarga y grafica los datos del par de monedas.")
+    else:
+        df_bollinger = st.session
