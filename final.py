@@ -111,20 +111,23 @@ class AnalisisFinanciero:
             st.warning("No hay datos de Bandas de Bollinger disponibles para graficar señales.")
             return None
 
-    def graficar_velas(df, par_seleccionado):
-        fig = go.Figure(data=[go.Candlestick(x=df['time'],
-                                              open=df['open'],
-                                              high=df['high'],
-                                              low=df['low'],
-                                              close=df['close'])])
-        fig.update_layout(
-            title=f'Gráfico de Velas para {par_seleccionado}',
-            xaxis_title='Fecha',
-            yaxis_title='Precio (EUR)',
-            hovermode="x unified",
-        )
-        return fig
-
+    def graficar_velas(self):
+        if self.df_precios is not None:
+            fig = go.Figure(data=[go.Candlestick(x=self.df_precios['time'],
+                                                  open=self.df_precios['open'],
+                                                  high=self.df_precios['high'],
+                                                  low=self.df_precios['low'],
+                                                  close=self.df_precios['close'])])
+            fig.update_layout(
+                title=f'Gráfico de Velas para {self.pair}',
+                xaxis_title='Fecha',
+                yaxis_title='Precio (EUR)',
+                hovermode="x unified",
+            )
+            return fig
+        else:
+            st.warning("No hay datos de precios disponibles para graficar velas.")
+            return None
 
 # Título de la aplicación y logo
 image = Image.open('logo_app.png')
@@ -163,19 +166,21 @@ if st.button("Mostrar Bandas de Bollinger"):
         st.warning("Primero descarga y grafica los datos del par de monedas.")
     else:
         df_bollinger = st.session_state['df_bollinger']
-        if df_bollinger['media_móvil'].notna().any():
-            fig_bb = analisis.graficar_bandas_bollinger()
-            st.write("Esta gráfica muestra las Bandas de Bollinger para el par seleccionado, incluyendo la media móvil y las bandas superior e inferior de variabilidad.")
-            st.plotly_chart(fig_bb)
+        if df_bollinger['media_móvil'].isnull().all():
+            st.warning("No se pueden mostrar las Bandas de Bollinger porque no hay datos suficientes.")
         else:
-            st.warning("No hay suficientes datos para calcular las Bandas de Bollinger.")
+            fig_bollinger = analisis.graficar_bandas_bollinger()
+            st.plotly_chart(fig_bollinger)
 
-# Mostrar señales de compra/venta al presionar el botón
+# Mostrar señales de compra y venta al presionar el botón
 if st.button("Mostrar Señales de Compra y Venta"):
     if 'df_bollinger' not in st.session_state:
         st.warning("Primero descarga y grafica los datos del par de monedas.")
     else:
-        df_bollinger = st.session
+        df_bollinger = analisis.calcular_senales()
+        if df_bollinger is not None:
+            fig_senales = analisis.graficar_senales()
+            st.plotly_chart(fig_senales)
 
 # Mostrar gráfico de velas al presionar el botón
 if st.button("Mostrar Gráfico de Velas"):
@@ -183,6 +188,5 @@ if st.button("Mostrar Gráfico de Velas"):
         st.warning("Primero descarga y grafica los datos del par de monedas.")
     else:
         df_precios = st.session_state['df_precios']
-        fig_velas = graficar_velas(df_precios, par_seleccionado)
+        fig_velas = analisis.graficar_velas()  # Usar el método de la instancia
         st.plotly_chart(fig_velas)
-
