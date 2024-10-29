@@ -44,8 +44,9 @@ class KrakenApp:
             st.error("No hay suficientes datos para calcular el cambio porcentual.")
             return None
 
-        precio_actual = df['close'].iloc[-1]
-        precio_anterior = df['close'].iloc[-2]
+        # Inicializar variables
+        precio_actual = df['close'].iloc[-1] if len(df['close']) > 0 else 0
+        precio_anterior = df['close'].iloc[-2] if len(df['close']) > 1 else 0
 
         # Calcular cambio porcentual
         cambio_porcentual = ((precio_actual - precio_anterior) / precio_anterior) * 100 if precio_anterior != 0 else 0
@@ -164,3 +165,4 @@ class KrakenApp:
 if __name__ == "__main__":
     app = KrakenApp()
     app.run()
+
