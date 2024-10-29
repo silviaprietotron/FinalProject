@@ -111,6 +111,21 @@ class AnalisisFinanciero:
             st.warning("No hay datos de Bandas de Bollinger disponibles para graficar señales.")
             return None
 
+    def graficar_velas(df, par_seleccionado):
+    fig = go.Figure(data=[go.Candlestick(x=df['time'],
+                                          open=df['open'],
+                                          high=df['high'],
+                                          low=df['low'],
+                                          close=df['close'])])
+    fig.update_layout(
+        title=f'Gráfico de Velas para {par_seleccionado}',
+        xaxis_title='Fecha',
+        yaxis_title='Precio (EUR)',
+        hovermode="x unified",
+    )
+    return fig
+
+
 # Título de la aplicación y logo
 image = Image.open('logo_app.png')
 st.image(image, width=200)
@@ -161,3 +176,13 @@ if st.button("Mostrar Señales de Compra y Venta"):
         st.warning("Primero descarga y grafica los datos del par de monedas.")
     else:
         df_bollinger = st.session
+
+# Mostrar gráfico de velas al presionar el botón
+if st.button("Mostrar Gráfico de Velas"):
+    if 'df_precios' not in st.session_state:
+        st.warning("Primero descarga y grafica los datos del par de monedas.")
+    else:
+        df_precios = st.session_state['df_precios']
+        fig_velas = graficar_velas(df_precios, par_seleccionado)
+        st.plotly_chart(fig_velas)
+
