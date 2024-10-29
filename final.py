@@ -26,6 +26,7 @@ class AnalizadorDeMercado:
         return df_bollinger
 
     def calcular_senales(self, df_bollinger):
+        df_bollinger = df_bollinger.astype(float)
         df_bollinger['signal'] = 0
         df_bollinger = df_bollinger.dropna(subset=['close', 'banda_inferior', 'banda_superior'])
         df_bollinger.loc[df_bollinger['close'] < df_bollinger['banda_inferior'], 'signal'] = 1  # Compra
