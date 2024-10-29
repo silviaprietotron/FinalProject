@@ -122,6 +122,10 @@ except Exception as e:
 # Input de usuario: selección de par de monedas
 par_seleccionado = st.selectbox("Selecciona el par de monedas:", all_pairs)
 
+# Crear un espacio para almacenar la instancia de AnalisisBollinger
+if 'analisis' not in st.session_state:
+    st.session_state['analisis'] = None
+
 # Botón para descargar y graficar datos
 if st.button("Descargar y graficar datos"):
     datos_ohlc = get_ohlc_data(par_seleccionado, interval=60)
@@ -130,34 +134,34 @@ if st.button("Descargar y graficar datos"):
         df_precios = pd.DataFrame(datos_ohlc, columns=columnas)
         df_precios['time'] = pd.to_datetime(df_precios['time'], unit='s')
         st.session_state['df_precios'] = df_precios
+        
+        # Crear instancia de la clase AnalisisBollinger
+        st.session_state['analisis'] = AnalisisBollinger(df_precios)
+        
         fig = graficar_datos(df_precios, par_seleccionado)
         st.write("Esta gráfica muestra el movimiento histórico del precio de cierre para el par de monedas seleccionado.")
         st.plotly_chart(fig)
-        
-        # Crear instancia de la clase AnalisisBollinger
-        analisis = AnalisisBollinger(df_precios)
-        df_bollinger = analisis.calcular_bandas_bollinger()
-        st.session_state['df_bollinger'] = df_bollinger
 
 # Mostrar las Bandas de Bollinger al presionar el botón
 if st.button("Mostrar Bandas de Bollinger"):
-    if 'df_bollinger' not in st.session_state:
+    analisis = st.session_state.get('analisis')
+    
+    if analisis is None:
         st.warning("Primero descarga y grafica los datos del par de monedas.")
     else:
-        df_bollinger = st.session_state['df_bollinger']
-        if df_bollinger['media_móvil'].notna().any():
-            fig_bb = analisis.graficar_bandas_bollinger(par_seleccionado)
-            st.write("Esta gráfica muestra las Bandas de Bollinger para el par seleccionado, incluyendo la media móvil y las bandas superior e inferior de variabilidad.")
-            st.plotly_chart(fig_bb)
-        else:
-            st.warning("No hay suficientes datos para calcular las Bandas de Bollinger.")
+        df_bollinger = analisis.calcular_bandas_bollinger()
+        st.session_state['df_bollinger'] = df_bollinger
+        fig_bb = analisis.graficar_bandas_bollinger(par_seleccionado)
+        st.write("Este gráfico muestra las Bandas de Bollinger para el par seleccionado.")
+        st.plotly_chart(fig_bb)
 
-# Mostrar señales de compra/venta al presionar el botón
+# Mostrar señales de compra/venta
 if st.button("Mostrar Señales de Compra y Venta"):
-    if 'df_bollinger' not in st.session_state:
+    analisis = st.session_state.get('analisis')
+    
+    if analisis is None:
         st.warning("Primero descarga y grafica los datos del par de monedas.")
     else:
-        df_bollinger = st.session_state['df_bollinger']
         df_bollinger_con_senales = analisis.calcular_senales()
         fig_senales = graficar_senales(df_bollinger_con_senales, par_seleccionado)
         st.write("Esta gráfica muestra las señales de compra y venta para el par seleccionado.")
@@ -172,3 +176,4 @@ if st.button("Mostrar Gráfico de Velas"):
         fig_velas = graficar_velas(df_precios, par_seleccionado)
         st.write("Este es el gráfico de velas para el par seleccionado, que muestra los movimientos de precios en diferentes intervalos.")
         st.plotly_chart(fig_velas)
+
