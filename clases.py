@@ -25,17 +25,23 @@ class VisualizadorKraken:
         df_bollinger['desviación_estándar'] = df_bollinger['close'].rolling(window=ventana).std()
         df_bollinger['banda_superior'] = df_bollinger['media_móvil'] + (df_bollinger['desviación_estándar'] * num_sd)
         df_bollinger['banda_inferior'] = df_bollinger['media_móvil'] - (df_bollinger['desviación_estándar'] * num_sd)
+
+        #Convertir las columnas relevantes a formato float
         df_bollinger['close'] = df_bollinger['close'].astype(float)
         df_bollinger['banda_inferior'] = df_bollinger['banda_inferior'].astype(float)
         df_bollinger['banda_superior'] = df_bollinger['banda_superior'].astype(float)
+        
         return df_bollinger
 
     # Función para calcular señales de compra/venta
     def calcular_senales(self, df_bollinger):
         df_bollinger['signal'] = 0
         df_bollinger = df_bollinger.dropna(subset=['close', 'banda_inferior', 'banda_superior'])
+       
+        #Cálculo de las señales
         df_bollinger.loc[df_bollinger['close'] < df_bollinger['banda_inferior'], 'signal'] = 1
         df_bollinger.loc[df_bollinger['close'] > df_bollinger['banda_superior'], 'signal'] = -1
+        
         return df_bollinger
 
     # Función para graficar datos de precios
@@ -45,7 +51,7 @@ class VisualizadorKraken:
         fig.update_layout(
             title=f'Movimiento del par {par_seleccionado}',
             xaxis_title='Fecha',
-            yaxis_title='Precio de cierre (EUR)',
+            yaxis_title='Precio de cierre',
             hovermode="x unified"
         )
         return fig
@@ -59,7 +65,7 @@ class VisualizadorKraken:
         fig.update_layout(
             title=f'Bandas de Bollinger para {par_seleccionado}',
             xaxis_title='Fecha',
-            yaxis_title='Precio (EUR)',
+            yaxis_title='Precio',
             hovermode="x unified",
         )
         return fig
@@ -68,14 +74,18 @@ class VisualizadorKraken:
     def graficar_senales(self, df_bollinger, par_seleccionado):
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=df_bollinger['time'], y=df_bollinger['close'], mode='lines', name='Precio de cierre', line=dict(color='blue')))
+        
+        #Añadir señales de compra y venta
         buy_signals = df_bollinger[df_bollinger['signal'] == 1]
         sell_signals = df_bollinger[df_bollinger['signal'] == -1]
+        
         fig.add_trace(go.Scatter(x=buy_signals['time'], y=buy_signals['close'], mode='markers', name='Señal de Compra', marker=dict(color='green', symbol='triangle-up', size=10)))
         fig.add_trace(go.Scatter(x=sell_signals['time'], y=sell_signals['close'], mode='markers', name='Señal de Venta', marker=dict(color='red', symbol='triangle-down', size=10)))
+       
         fig.update_layout(
             title=f'Señales de Compra y Venta para {par_seleccionado}',
             xaxis_title='Fecha',
-            yaxis_title='Precio (EUR)',
+            yaxis_title='Precio',
             hovermode="x unified",
         )
         return fig
@@ -90,7 +100,7 @@ class VisualizadorKraken:
         fig.update_layout(
             title=f'Gráfico de Velas para {par_seleccionado}',
             xaxis_title='Fecha',
-            yaxis_title='Precio (EUR)',
+            yaxis_title='Precio',
             hovermode="x unified",
         )
         return fig
@@ -102,6 +112,7 @@ visualizador = VisualizadorKraken()
 image = Image.open('logo_app.png')
 st.image(image, width=200)
 st.title("Visualización del Par de Monedas en Kraken")
+st.write("Esta aplicación permite seleccionar un par de monedas de Kraken, visualizar su precio histórico en diferentes formatos, y calcular Bandas de Bollinger para identificar señales de compra y venta. Las Bandas de Bollinger incluyen la media móvil y las bandas superior e inferior, que representan la variabilidad del precio. La aplicación tiene como objetivo facilitar el análisis visual y técnico de las criptomonedas deseadas.")
 
 # Obtener todos los pares de criptomonedas
 try:
@@ -133,8 +144,12 @@ if st.button("Mostrar Bandas de Bollinger"):
         st.warning("Primero descarga y grafica los datos del par de monedas.")
     else:
         df_bollinger = st.session_state['df_bollinger']
-        fig_bb = visualizador.graficar_bandas_bollinger(df_bollinger, par_seleccionado)
-        st.plotly_chart(fig_bb)
+        if df_bollinger['media_móvil'].notna().any():
+            fig_bb = visualizador.graficar_bandas_bollinger(df_bollinger, par_seleccionado)
+            st.write("Esta gráfica muestra las Bandas de Bollinger para el par seleccionado, incluyendo la media móvil y las bandas superior e inferior de variabilidad.")
+            st.plotly_chart(fig_bb)
+        else:
+            st.warning("No hay suficientes datos para calcular las Bandas de Bollinger.")
 
 # Mostrar señales de compra/venta
 if st.button("Mostrar Señales de Compra y Venta"):
@@ -143,7 +158,16 @@ if st.button("Mostrar Señales de Compra y Venta"):
     else:
         df_bollinger = st.session_state['df_bollinger']
         df_bollinger = visualizador.calcular_senales(df_bollinger)
+
+        # Mostrar señales de compra y venta
+        compra_count = df_bollinger[df_bollinger['signal'] == 1].shape[0]
+        venta_count = df_bollinger[df_bollinger['signal'] == -1].shape[0]
+        
+        st.write(f"**Señales de Compra:** {compra_count}")
+        st.write(f"**Señales de Venta:** {venta_count}")
+        
         fig_senales = visualizador.graficar_senales(df_bollinger, par_seleccionado)
+        st.write("Esta gráfica muestra las señales de compra y venta basadas en las Bandas de Bollinger.")
         st.plotly_chart(fig_senales)
 
 # Mostrar gráfico de velas
@@ -153,4 +177,5 @@ if st.button("Mostrar Gráfico de Velas"):
     else:
         df_precios = st.session_state['df_precios']
         fig_velas = visualizador.graficar_velas(df_precios, par_seleccionado)
+        st.write("Este gráfico muestra la representación de velas del movimiento del par de monedas seleccionado.")
         st.plotly_chart(fig_velas)
